@@ -4,7 +4,7 @@ import java.util.*;
 
 
 public class ClientServer {
-    DatabaseManager databaseManager=new DatabaseManager();
+    DatabaseManager databaseManager = DatabaseManager.getManager();
 
 
     public OutputType signup(String id,String name,String lastName,String email,String phoneNumber,String password,String country,String birthDate){
@@ -34,4 +34,10 @@ public class ClientServer {
         }
         return OutputType.NOT_FOUND;
     }
+
+    public static void main(String[] args) {
+
+    }
+
+
 }
