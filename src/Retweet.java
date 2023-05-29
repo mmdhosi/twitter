@@ -7,4 +7,9 @@ public class Retweet extends Tweet{
         super(user, "", likeCount, replyCount, retweetCount);
         this.retweetedTweet = retweetedTweet;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + retweetedTweet.getContent();
+    }
 }

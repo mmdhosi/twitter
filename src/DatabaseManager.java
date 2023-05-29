@@ -298,8 +298,16 @@ public class DatabaseManager {
                         result.getInt(4),
                         result.getInt(5),
                         result.getInt(6));
+            else if(result.getString(3).equals("P"))
+                resultTweet = new Reply(getUserFromId(result.getInt(2)),
+                        result.getString(7),
+                        result.getInt(4),
+                        result.getInt(5),
+                        result.getInt(6),
+                        getTweet(result.getInt(12)));
             if(resultTweet == null)
                 return null;
+            resultTweet.setTweetId(result.getInt(1));
             resultTweet.setTimestamp(result.getTimestamp(11));
             return resultTweet;
         } catch (SQLException e) {
@@ -328,8 +336,6 @@ public class DatabaseManager {
 
     public List<Tweet> getTimeline(String userName){
         //TODO: if it is retweeted to it self???
-        //TODO: if it is a reply
-        //TODO: bug on mmd to get timeline
         ArrayList<User> followings=getFollowings(userName);
         HashSet<Tweet> timeline = new HashSet<>();
         for (User f:followings) {
@@ -355,24 +361,59 @@ public class DatabaseManager {
         return tweets;
     }
 
-    public int idTweetByTimeAndUserid(Tweet tweet){
+    public int idTweetByTimeAndUserid(String userName, Timestamp timestamp){
         PreparedStatement statement = null;
         try {
             statement = con.prepareStatement("SELECT id FROM twitter.tweets WHERE time = ? AND user_id = ?");
-            statement.setTimestamp(1, tweet.getTimestamp());
-            statement.setInt(2, getUserId(tweet.getUserName()));
+            timestamp.setNanos(0);
+            statement.setTimestamp(1, timestamp);
+            statement.setInt(2, getUserId(userName));
             ResultSet result = statement.executeQuery();
             result.next();
-            int quoteId = result.getInt(1);
-            return quoteId;
+            int tweetId = result.getInt(1);
+            return tweetId;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return -1;
-
-
     }
 
+    public void extractHashtags(String content, int tweetId){
+        ArrayList<String> hashtags = new ArrayList<>();
+        PreparedStatement statement;
+        ResultSet result;
+        int hashtag_id;
+        for (String word : content.split(" ")) {
+            if(word.charAt(0) == '#'){
+                hashtags.add(word);
+                try {
+                    statement = con.prepareStatement("SELECT hashtag_id FROM hashtag_names WHERE hashtag_name = ?");
+                    statement.setString(1, word);
+                    result = statement.executeQuery();
+                    if(!result.next()) {
+                        statement = con.prepareStatement("INSERT INTO hashtag_names VALUES(DEFAULT, ?)");
+                        statement.setString(1, word);
+                        statement.executeUpdate();
+                        statement = con.prepareStatement("SELECT last_insert_id() FROM hashtag_names");
+                        result = statement.executeQuery();
+                        result.next();
+                        hashtag_id = result.getInt(1);
+                    } else {
+                        hashtag_id = result.getInt(1);
+                    }
+                    statement = con.prepareStatement("INSERT INTO tweet_hashtags VALUES(?,?)");
+                    statement.setInt(1, tweetId);
+                    statement.setInt(2, hashtag_id);
+                    statement.executeUpdate();
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+    }
 
     public OutputType addTweet(Tweet tweet){
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
@@ -381,7 +422,7 @@ public class DatabaseManager {
         try {
             //TODO: handle image
             //TODO:280 char limit
-            //TODO: extract hashtag and add it to its table
+            //TODO: extract hashtag and add it to its table  DONE
             statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,NULL,?, NULL)");
 
             statement.setInt(1, getUserId(tweet.getUserName()));
@@ -392,15 +433,22 @@ public class DatabaseManager {
             statement.setString(6, tweet.getContent());
             statement.setTimestamp(7, tweetDate);
             tweet.setTimestamp(tweetDate);
-            statement.executeUpdate();
-
+            int newTweetId;
+            synchronized (this) {
+                statement.executeUpdate();
+                statement = con.prepareStatement("SELECT last_insert_id() FROM tweets");
+                ResultSet resultSet = statement.executeQuery();
+                resultSet.next();
+                newTweetId = resultSet.getInt(1);
+            }
+            extractHashtags(tweet.getContent(), newTweetId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return OutputType.SUCCESS;
 
     }
-    public OutputType addRetweet(Tweet tweetToRetweet, String userName){
+    public OutputType addRetweet(int retweetedId, String userName){
         //TODO: add count retweet_count  DONE
         //TODO: handle if a retweet gets retweeted  DONE
 
@@ -411,7 +459,6 @@ public class DatabaseManager {
             //TODO: handle image
             //TODO:280 char limit
 
-            int retweetedId = idTweetByTimeAndUserid(tweetToRetweet);
             statement = con.prepareStatement("SELECT tweet_type FROM twitter.tweets WHERE id=?");
             statement.setInt(1, retweetedId);
             ResultSet result = statement.executeQuery();
@@ -419,9 +466,9 @@ public class DatabaseManager {
             if(Objects.equals(result.getString(1), "R")){
                 statement = con.prepareStatement("SELECT retweeted_id FROM twitter.tweets WHERE id=?");
                 statement.setInt(1, retweetedId);
-                ResultSet result1 = statement.executeQuery();
-                result1.next();
-                return addRetweet(getTweet(result1.getInt(1)),userName);
+                result = statement.executeQuery();
+                result.next();
+                return addRetweet(result.getInt(1),userName);
             }
 
             statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,NULL,?,NULL,NULL,?, NULL)");
@@ -443,17 +490,14 @@ public class DatabaseManager {
 
     }
 
-    public OutputType addQuote(Tweet tweetToQuote, String userName, String quote){
+    public OutputType addQuote(int tweetToQuoteId, String userName, String quote){
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
         PreparedStatement statement = null;
         try {
             //TODO: handle image
             //TODO: 280 char limit
-            //TODO: extract hashtag and add it to its table
-            int quoteId = idTweetByTimeAndUserid(tweetToQuote);
-
-
+            //TODO: extract hashtag and add it to its table DONE
             statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,?,?,NULL)");
             statement.setInt(1, getUserId(userName));
             statement.setString(2, "Q");
@@ -461,16 +505,24 @@ public class DatabaseManager {
             statement.setInt(4, 0);
             statement.setInt(5, 0);
             statement.setString(6, quote);
-            statement.setInt(7, quoteId);
+            statement.setInt(7, tweetToQuoteId);
             statement.setTimestamp(8, tweetDate);
-            statement.executeUpdate();
+            int newTweetId;
+            synchronized (this) {
+                statement.executeUpdate();
+                statement = con.prepareStatement("SELECT last_insert_id() FROM tweets");
+                ResultSet resultSet = statement.executeQuery();
+                resultSet.next();
+                newTweetId = resultSet.getInt(1);
+            }
+            extractHashtags(quote,newTweetId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return OutputType.SUCCESS;
 
     }
-    public OutputType addReply(Tweet tweetToReply, String userName, String reply){
+    public OutputType addReply(int tweetToReplyId, String userName, String reply){
         //TODO: add count reply_count  DONE
 
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
@@ -480,18 +532,17 @@ public class DatabaseManager {
             //TODO: handle image
             //TODO: 280 char limit
             //TODO: extract hashtag and add it to its table
-            int replyId = idTweetByTimeAndUserid(tweetToReply);
 
             statement = con.prepareStatement("SELECT tweet_type FROM twitter.tweets WHERE id=?");
-            statement.setInt(1, replyId);
+            statement.setInt(1, tweetToReplyId);
             ResultSet result = statement.executeQuery();
             result.next();
             if(Objects.equals(result.getString(1), "R")){
                 statement = con.prepareStatement("SELECT retweeted_id FROM twitter.tweets WHERE id=?");
-                statement.setInt(1, replyId);
+                statement.setInt(1, tweetToReplyId);
                 ResultSet result1 = statement.executeQuery();
                 result1.next();
-                return addReply(getTweet(result1.getInt(1)),userName,reply);
+                return addReply(result1.getInt(1),userName,reply);
             }
 
 
@@ -503,12 +554,21 @@ public class DatabaseManager {
             statement.setInt(5, 0);
             statement.setString(6, reply);
             statement.setTimestamp(7, tweetDate);
-            statement.setInt(8, replyId);
+            statement.setInt(8, tweetToReplyId);
             statement.executeUpdate();
 
             statement = con.prepareStatement("UPDATE twitter.tweets SET reply_count = reply_count+1 WHERE id = ?");
-            statement.setInt(1, replyId);
-            statement.executeUpdate();
+            statement.setInt(1, tweetToReplyId);
+            int newTweetId;
+            synchronized (this) {
+                statement.executeUpdate();
+                statement = con.prepareStatement("SELECT last_insert_id() FROM tweets");
+                ResultSet resultSet = statement.executeQuery();
+                resultSet.next();
+                newTweetId = resultSet.getInt(1);
+            }
+            extractHashtags(reply,newTweetId);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -516,10 +576,65 @@ public class DatabaseManager {
 
     }
 
-    public OutputType likeTweet(Tweet tweetToLike, String userName){
+    public ArrayList<Retweet> getRetweets(int tweetId){
+        ArrayList<Retweet> retweets = new ArrayList<>();
+
+        try {
+            PreparedStatement statement = con.prepareStatement("""
+                        SELECT id
+                        FROM twitter.tweets\s
+                        WHERE  retweeted_id = ?\s""");
+
+            statement.setInt(1, tweetId);
+            ResultSet result = statement.executeQuery();
+
+            while (result.next()) {
+                Retweet retweet = (Retweet) getTweet(result.getInt(1));
+                retweet.setTweetId(result.getInt(1));
+                retweets.add(retweet);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return retweets;
+    }
+
+    public ArrayList<Reply> getReplies(int tweetToShowId, String username){
+        ArrayList<Reply> replies = new ArrayList<>();
+        try {
+            PreparedStatement statement = con.prepareStatement("""
+                    SELECT id
+                    FROM twitter.tweets\s
+                    WHERE  replied_to = ?\s""");
+            statement.setInt(1, tweetToShowId);
+            ResultSet result = statement.executeQuery();
+
+            while (result.next()) {
+                // get all replies to this tweet
+                int reply_id = result.getInt(1);
+                Reply reply = (Reply) getTweet(reply_id);
+                reply.addRepliedToUsername(username);
+                replies.add(reply);
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        // get all replies to this tweet's retweets
+        for (Retweet retweet:getRetweets(tweetToShowId)){
+            for (Reply reply : getReplies(retweet.getTweetId(), retweet.getUserName())) {
+                reply.addRepliedToUsername(retweet.getUserName());
+                replies.add(reply);
+            }
+        }
+
+        return replies;
+    }
+
+    public OutputType likeTweet(int tweetToLikeId, String userName){
         PreparedStatement statement = null;
         try {
-            int tweetToLikeId = idTweetByTimeAndUserid(tweetToLike);
             statement = con.prepareStatement("SELECT tweet_type FROM twitter.tweets WHERE id=?");
             statement.setInt(1, tweetToLikeId);
             ResultSet result = statement.executeQuery();
@@ -527,9 +642,9 @@ public class DatabaseManager {
             if(Objects.equals(result.getString(1), "R")){
                 statement = con.prepareStatement("SELECT retweeted_id FROM twitter.tweets WHERE id=?");
                 statement.setInt(1, tweetToLikeId);
-                ResultSet result1 = statement.executeQuery();
-                result1.next();
-                return likeTweet(getTweet(result1.getInt(1)),userName);
+                result = statement.executeQuery();
+                result.next();
+                return likeTweet(result.getInt(1),userName);
             }
 
             statement = con.prepareStatement("INSERT INTO twitter.likes VALUES(?,?)");
@@ -548,12 +663,11 @@ public class DatabaseManager {
         return OutputType.SUCCESS;
     }
 
-    public OutputType unlikeTweet(Tweet tweetToUnlike, String userName){
+    public OutputType unlikeTweet(int tweetToUnlikeId, String userName){
         //TODO: handle if its retweet    DONE
 
         PreparedStatement statement = null;
         try {
-            int tweetToUnlikeId = idTweetByTimeAndUserid(tweetToUnlike);
             statement = con.prepareStatement("SELECT tweet_type FROM twitter.tweets WHERE id=?");
             statement.setInt(1, tweetToUnlikeId);
             ResultSet result = statement.executeQuery();
@@ -561,18 +675,16 @@ public class DatabaseManager {
             if(Objects.equals(result.getString(1), "R")){
                 statement = con.prepareStatement("SELECT retweeted_id FROM twitter.tweets WHERE id=?");
                 statement.setInt(1, tweetToUnlikeId);
-                ResultSet result1 = statement.executeQuery();
-                result1.next();
-                return unlikeTweet(getTweet(result1.getInt(1)),userName);
+                result = statement.executeQuery();
+                result.next();
+                return unlikeTweet(result.getInt(1),userName);
             }
 
 
 
             statement = con.prepareStatement("DELETE FROM twitter.likes WHERE user_id = ? AND tweet_id  = ?");
-
             statement.setInt(1, getUserId(userName));
             statement.setInt(2, tweetToUnlikeId);
-
             statement.executeUpdate();
 
             statement = con.prepareStatement("UPDATE twitter.tweets SET like_count = like_count-1 WHERE id = ?");

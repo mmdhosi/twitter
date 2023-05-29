@@ -9,6 +9,7 @@ public abstract class Tweet {
     private int likeCount = 0,replyCount = 0,retweetCount = 0;
     private Timestamp timestamp;
     private boolean liked;
+    private int tweetId;
 
 
     public Tweet(User user, String content, int likeCount, int replyCount, int retweetCount) {
@@ -29,6 +30,14 @@ public abstract class Tweet {
     }
     public boolean isLiked(){
         return liked;
+    }
+
+    public int getTweetId() {
+        return tweetId;
+    }
+
+    public void setTweetId(int tweetId) {
+        this.tweetId = tweetId;
     }
 
     public String getUserName() {
@@ -87,5 +96,13 @@ public abstract class Tweet {
     @Override
     public int hashCode() {
         return Objects.hash(user, timestamp);
+    }
+
+    @Override
+    public String toString() {
+        return user.getUserName() + ": \n"+ content +
+                "\n  likes: "+likeCount+
+                "  replies: "+replyCount+
+                "  retweets: "+retweetCount+"\n";
     }
 }
