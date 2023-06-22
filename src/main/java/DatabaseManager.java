@@ -197,6 +197,45 @@ public class DatabaseManager {
         }
         return OutputType.SUCCESS;
     }
+    public OutputType block(String userToBlock, String user){
+        try {
+            int userIdToBlock=getUserId(userToBlock);
+            int userId=getUserId(user);
+            if(userIdToBlock==-1 || userId==-1){
+                return OutputType.NOT_FOUND;
+            }
+            if(userId == userIdToBlock){
+                return OutputType.INVALID;
+            }
+            PreparedStatement statement = con.prepareStatement("INSERT INTO twitter.blocklist VALUES(?,?)");
+            statement.setInt(1, userId);
+            statement.setInt(2,userIdToBlock);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        removeFollower(userToBlock,user);
+        removeFollower(user,userToBlock);
+        return OutputType.SUCCESS;
+    }
+    public ArrayList<User> getBlocklist(String user_id){
+        ArrayList<User> users=new ArrayList<>();
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT user_name\n" +
+                    "FROM twitter.blocklist \n" +
+                    "JOIN users ON user_to_block_id = id\n" +
+                    "WHERE  user_id = ? ");
+
+            statement.setInt(1,getUserId(user_id));
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                users.add(getUser(result.getString(1)));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
     public OutputType removeFollower(String following, String follower){
         try {
             int followerId=getUserId(follower);
@@ -211,6 +250,29 @@ public class DatabaseManager {
             PreparedStatement statement = con.prepareStatement("DELETE FROM twitter.followers WHERE follower_id= ? AND following_id = ?");
             statement.setInt(1,followerId);
             statement.setInt(2, followingId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return OutputType.SUCCESS;
+    }
+    public OutputType unblock(String userToUnblock, String user){
+        try {
+            int userIdToUnblock=getUserId(userToUnblock);
+            int userId=getUserId(user);
+            if(userIdToUnblock==-1 || userId==-1){
+                return OutputType.NOT_FOUND;
+            }
+            if(userId == userIdToUnblock){
+                return OutputType.INVALID;
+            }
+            if(userId == userIdToUnblock){
+                return OutputType.INVALID;
+            }
+
+            PreparedStatement statement = con.prepareStatement("DELETE FROM twitter.blocklist WHERE user_id= ? AND user_to_block_id = ?");
+            statement.setInt(1,userId);
+            statement.setInt(2, userIdToUnblock);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -234,6 +296,34 @@ public class DatabaseManager {
         }
         return users;
 
+    }
+    public Blob getAvatar(String username){
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT avatar\n" +
+                    "FROM twitter.users WHERE username= ? ");
+
+            statement.setString(1,username);
+            ResultSet result = statement.executeQuery();
+            result.next();
+            return result.getBlob(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public Blob getHeader(String username){
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT header\n" +
+                    "FROM twitter.users WHERE username= ? ");
+
+            statement.setString(1,username);
+            ResultSet result = statement.executeQuery();
+            result.next();
+            return result.getBlob(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     public ArrayList<User> getFollowers(String user_id){
         ArrayList<User> users=new ArrayList<>();
@@ -358,8 +448,41 @@ public class DatabaseManager {
                 return o1.getTimestamp().compareTo(o2.getTimestamp());
             }
         });
+
+        ArrayList<User> blocklist=getBlocklist(userName);
+        for (User b:blocklist) {
+            tweets.removeIf(t -> Objects.equals(b.getUserName(), t.getUserName()));
+        }
+
         return tweets;
     }
+
+    public List<Tweet> getTweetsForUser(String userName){
+        ArrayList<User> followings=getFollowings(userName);
+        HashSet<Tweet> timeline = new HashSet<>();
+        for (User f:followings) {
+            try {
+                PreparedStatement statement = con.prepareStatement("SELECT id FROM twitter.tweets WHERE user_id=?");
+                statement.setInt(1, getUserId(userName));
+                ResultSet result = statement.executeQuery();
+                while(result.next()){
+                    timeline.add(getTweet(result.getInt(1)));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        List<Tweet> tweets=new ArrayList<>(timeline);
+        Collections.sort(tweets, new Comparator<Tweet>() {
+            @Override
+            public int compare(Tweet o1, Tweet o2) {
+                return o1.getTimestamp().compareTo(o2.getTimestamp());
+            }
+        });
+
+        return tweets;
+    }
+
 
     public int idTweetByTimeAndUserid(String userName, Timestamp timestamp){
         PreparedStatement statement = null;

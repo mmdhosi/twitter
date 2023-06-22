@@ -57,7 +57,12 @@ public class ClientHandler extends Thread{
     private List<Reply> getReplies(int tweetId){
         return manager.getReplies(tweetId, currentUser.getUserName());
     }
-
+    private OutputType block(String usernameToBlock){
+        return manager.block(usernameToBlock,currentUser.getUserName());
+    }
+    private OutputType unblock(String usernameToUnblock){
+        return manager.unblock(usernameToUnblock,currentUser.getUserName());
+    }
 
     //TODO: show replies to a tweet recursively
     @Override
@@ -71,7 +76,7 @@ public class ClientHandler extends Thread{
 //        follow("mmd");
 //        System.out.println(getReplies(manager.getTweet(1)));
 //        Tweet tweet=new RegularTweet(currentUser,"oh my mm #boobs god #fuck",0,0,0);
-        System.out.println(getTimeline());
+//        System.out.println(getTimeline());
 //        likeTweet(29);
 
 //        addRetweet(28);
@@ -79,7 +84,17 @@ public class ClientHandler extends Thread{
 //        addReply(28,"yeah yeah #nice");
 
 //        addTweet(tweet);
+//        block("mmd");
+//        follow("mmd");
+//        follow("vex");
+//        unblock("mmd");
+
+//        block("mmd");
+
+//        System.out.println(getTimeline());
+
 
 
     }
+
 }
