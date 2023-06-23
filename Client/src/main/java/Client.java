@@ -1,5 +1,3 @@
-import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,8 +29,20 @@ public class Client {
 //                .build();
 //        HttpResponse<String> getResponse = httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
 
-        Requests requests = Requests.login("mmd", "1234");
-        System.out.println(requests.getTimeline());
+//        HttpRequest getRequest = HttpRequest.newBuilder()
+//                .uri(new URI("http://localhost:8000/user/mmd"))
+//                .GET()
+//                .header("authorization", "invalid_jwt")
+//                .build();
+//
+//        HttpClient httpClient = HttpClient.newHttpClient();
+//        HttpResponse<String> getResponse = httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
+//        System.out.println(getResponse);
+
+        Requester requester = Requester.login("mmd", "1234");
+
+
+
 
     }
 }
