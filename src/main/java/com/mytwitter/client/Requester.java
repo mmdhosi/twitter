@@ -102,7 +102,7 @@ public class Requester {
                     .build();
 
             HttpResponse<String> GETResponse = httpClient.send(GETRequest, HttpResponse.BodyHandlers.ofString());
-            return timelineGson.fromJson(GETResponse.body(), UserProfile.class);
+            return ClientGson.getTimelineGson().fromJson(GETResponse.body(), UserProfile.class);
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
