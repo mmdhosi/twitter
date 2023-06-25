@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class WelcomeViewController implements Initializable {
+public class WelcomeViewController  {
 
     private Stage currentStage;
 
@@ -37,7 +37,24 @@ public class WelcomeViewController implements Initializable {
         Stage signupStage = new Stage();
         SignupViewController controller = signupLoader.getController();
         signupStage.setScene(signupScene);
-        controller.setStage(signupStage);
+        controller.setStageCurrent(signupStage);
+        signupStage.show();
+    }
+    private void loginAction(ActionEvent event) {
+        currentStage.hide();
+        Scene loginScene = null;
+        FXMLLoader loginloader = null;
+        try {
+            loginloader = new FXMLLoader(getClass().getResource("/fxml/login-view.fxml"));
+            loginScene = new Scene(loginloader.load());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage signupStage = new Stage();
+        LoginViewController controller = loginloader.getController();
+        signupStage.setScene(loginScene);
+        controller.setCurrentStage(signupStage);
         signupStage.show();
     }
 
@@ -50,10 +67,7 @@ public class WelcomeViewController implements Initializable {
         return signupButton;
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
 
-    }
 
     public void setCurrentStage(Stage currentStage) {
         this.currentStage = currentStage;
