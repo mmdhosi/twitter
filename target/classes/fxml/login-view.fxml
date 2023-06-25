@@ -8,16 +8,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
 <AnchorPane prefHeight="213.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mytwitter.client.controllers.LoginViewController">
    <children>
       <VBox alignment="TOP_CENTER" layoutX="50.0" layoutY="108.0" prefHeight="184.0" prefWidth="200.0" AnchorPane.bottomAnchor="108.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="108.0">
          <children>
             <HBox prefHeight="39.0" prefWidth="200.0">
                <children>
-                  <Label alignment="TOP_LEFT" text="username :">
+                  <Label alignment="TOP_LEFT" prefWidth="80.0" text="username :">
                      <padding>
-                        <Insets left="2.0" right="40.0" />
+                        <Insets left="2.0" />
                      </padding>
                   </Label>
                   <TextField fx:id="usernameTextField" />
@@ -25,7 +24,7 @@
             </HBox>
             <HBox layoutX="10.0" layoutY="10.0" prefHeight="53.0" prefWidth="200.0">
                <children>
-                  <Label text="password :" />
+                  <Label prefWidth="80.0" text="password :" />
                   <TextField fx:id="passwordTextField" />
                </children>
             </HBox>
