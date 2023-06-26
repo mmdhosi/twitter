@@ -40,6 +40,7 @@ public class WelcomeViewController  {
         controller.setStageCurrent(signupStage);
         signupStage.show();
     }
+    @FXML
     private void loginAction(ActionEvent event) {
         currentStage.hide();
         Scene loginScene = null;

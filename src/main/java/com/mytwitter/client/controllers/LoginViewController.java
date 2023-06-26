@@ -1,6 +1,7 @@
 package com.mytwitter.client.controllers;
 
 
+import com.mytwitter.client.Requester;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -32,6 +33,8 @@ public class LoginViewController {
         //TODO: vojod username va dorost bodan password
         String username=usernameTextField.getText();
         String password=passwordTextField.getText();
+        Requester requester;
+
 
 
     }
