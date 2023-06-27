@@ -38,7 +38,6 @@ public class SignupHandler implements HttpHandler {
             String requestJson = new String(request);
             User user = gson.fromJson(requestJson, User.class);
             OutputType output = signup(user);
-            //TODO: JWT
             OutputStream os = exchange.getResponseBody();
 
             if(output.equals(OutputType.DUPLICATE_USERNAME)){

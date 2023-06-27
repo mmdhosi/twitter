@@ -21,8 +21,9 @@ public class Requester {
     private String jwt;
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final Gson gson = ClientGson.getGson();
+    private static Requester requester;
 
-    public static void signup(User user){
+    public static OutputType signup(User user){
         String jsonRequest = gson.toJson(user);
         try {
             HttpRequest signupRequest = HttpRequest.newBuilder()
@@ -31,10 +32,23 @@ public class Requester {
                     .build();
             HttpResponse<String> GETResponse = httpClient.send(signupRequest, HttpResponse.BodyHandlers.ofString());
             // TODO: check response codes (duplicates)
+            if(GETResponse.statusCode()==200){
+                return OutputType.SUCCESS;
+            } else {
+                String response = GETResponse.body();
+                if(response.equals("Username already exists")){
+                    return OutputType.DUPLICATE_USERNAME;
+                } else if(response.equals("Email already exists")) {
+                    return OutputType.DUPLICATE_EMAIL;
+                } else if(response.equals("Phone number already exists")){
+                    return OutputType.DUPLICATE_PHONENUMBER;
+                }
+            }
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        return OutputType.INVALID;
     }
 
     public static Requester login(String username, String password){
@@ -57,6 +71,7 @@ public class Requester {
             return null;
         }
         return new Requester(jwt);
+
     }
 
     private Requester(String jwt) {

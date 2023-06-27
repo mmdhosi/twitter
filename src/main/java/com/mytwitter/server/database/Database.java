@@ -55,6 +55,8 @@ public class Database {
                     return OutputType.DUPLICATE_EMAIL;
                 else if(message.contains("'users.phoneNumber_UNIQUE'"))
                     return OutputType.DUPLICATE_PHONENUMBER;
+                else
+                    return OutputType.INVALID;
             }
         }
         return OutputType.SUCCESS;
@@ -443,7 +445,14 @@ public class Database {
                 PreparedStatement statement = con.prepareStatement("SELECT id FROM twitter.tweets WHERE user_id=?");
                 statement.setInt(1, getUserId(following.getUserName()));
                 ResultSet result = statement.executeQuery();
+                Tweet tweet;
                 while(result.next()){
+                    //TODO: check if it is liked
+//                    PreparedStatement preparedStatement = con.prepareStatement("SELECT id FROM twitter. WHERE user_id=?");
+//                    preparedStatement.setInt(1, getUserId(following.getUserName()));
+//                    ResultSet result = statement.executeQuery();
+
+
                     timeline.add(getTweet(result.getInt(1)));
                 }
             } catch (SQLException e) {

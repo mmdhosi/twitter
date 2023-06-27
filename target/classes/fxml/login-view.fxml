@@ -29,7 +29,7 @@
                </children>
             </HBox>
             <Label fx:id="errorLBL" textFill="RED" />
-            <Button fx:id="loginButton" mnemonicParsing="false" text="Login" />
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#submitButtonAction" text="Login" />
          </children>
       </VBox>
    </children>

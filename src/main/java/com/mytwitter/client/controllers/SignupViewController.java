@@ -1,6 +1,8 @@
 package com.mytwitter.client.controllers;
 
+import com.mytwitter.client.Requester;
 import com.mytwitter.user.User;
+import com.mytwitter.util.OutputType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -154,9 +156,14 @@ public class SignupViewController {
         String password=passwordField.getText();
         String country=countryChoice.getValue();
         String birthdate= String.valueOf(birthdateField.getValue());
+        //TODO: VERY IMPORTANT!!! set birthday to null (va baghie age hal dari)
+        //TODO: * for password
+
         User user=new User(username,firstname,lastname,email,phonenumber,password,country,birthdate);
-        System.out.println(user.getCountry());
-//        Requester.signup(user);
+        OutputType out = Requester.signup(user);
+        if(out == OutputType.DUPLICATE_USERNAME){
+            //TODO: do the rest
+        }
 
         currentStage.hide();
 
@@ -169,11 +176,11 @@ public class SignupViewController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Stage signupStage = new Stage();
+        Stage loginStage = new Stage();
         LoginViewController controller = loginloader.getController();
-        signupStage.setScene(loginScene);
-        controller.setCurrentStage(signupStage);
-        signupStage.show();
+        loginStage.setScene(loginScene);
+        controller.setCurrentStage(loginStage);
+        loginStage.show();
     }
 
 
