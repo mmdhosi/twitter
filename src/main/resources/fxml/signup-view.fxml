@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -37,7 +38,7 @@
          <HBox layoutX="10.0" layoutY="330.0" prefHeight="100.0">
             <children>
                <Label prefWidth="90.0" text="Password :" />
-               <TextField fx:id="passwordField" />
+            <PasswordField fx:id="passwordField" />
                <Label fx:id="passwordError" textFill="RED">
                   <HBox.margin>
                      <Insets left="60.0" />
@@ -48,7 +49,7 @@
          <HBox layoutX="10.0" layoutY="344.0" prefHeight="100.0">
             <children>
                <Label prefWidth="90.0" text="Repeat Password :" />
-               <TextField fx:id="passwordRepeatField" />
+            <PasswordField fx:id="passwordRepeatField" />
                <Label fx:id="repeatPasswordError" textFill="RED">
                   <HBox.margin>
                      <Insets left="60.0" />
@@ -90,6 +91,7 @@
                <DatePicker fx:id="birthdateField" />
             </children>
          </HBox>
+      <Label fx:id="errorLBL" textFill="#ff0015" />
          <Button fx:id="submitButton" mnemonicParsing="false" onAction="#submitButtonAction" text="Submit" />
       </children>
    </VBox>
