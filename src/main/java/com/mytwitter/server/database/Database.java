@@ -22,7 +22,7 @@ public class Database {
         }
     }
 
-    private Database() {}
+    public Database() {}
 
     public static Database getManager(){
         if(manager == null)
@@ -49,7 +49,7 @@ public class Database {
             if(e.getErrorCode() == 1062){
                 String message = e.getMessage();
                 System.out.println(message);
-                if(message.contains("'users.username'"))
+                if(message.contains("'users.user_name'"))
                     return OutputType.DUPLICATE_USERNAME;
                 else if(message.contains("'users.email_UNIQUE'"))
                     return OutputType.DUPLICATE_EMAIL;
@@ -448,12 +448,16 @@ public class Database {
                 Tweet tweet;
                 while(result.next()){
                     //TODO: check if it is liked
-//                    PreparedStatement preparedStatement = con.prepareStatement("SELECT id FROM twitter. WHERE user_id=?");
-//                    preparedStatement.setInt(1, getUserId(following.getUserName()));
-//                    ResultSet result = statement.executeQuery();
-
-
-                    timeline.add(getTweet(result.getInt(1)));
+                    tweet=getTweet(result.getInt(1));
+                    PreparedStatement preparedStatement = con.prepareStatement("SELECT user_id FROM twitter.likes WHERE tweet_id=?");
+                    preparedStatement.setInt(1, getTweet(result.getInt(1)).getTweetId());
+                    ResultSet resultSet= preparedStatement.executeQuery();
+                    while (resultSet.next()){
+                        if(resultSet.getInt(1)==getUserId(userName)){
+                            tweet.like();
+                        }
+                    }
+                    timeline.add(tweet);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -472,7 +476,6 @@ public class Database {
         for (User b:blocklist) {
             tweets.removeIf(t -> Objects.equals(b.getUserName(), t.getUserName()));
         }
-
         return tweets;
     }
 
@@ -497,7 +500,7 @@ public class Database {
                 return o1.getTimestamp().compareTo(o2.getTimestamp());
             }
         });
-
+        System.out.println(tweets);
         return tweets;
     }
 

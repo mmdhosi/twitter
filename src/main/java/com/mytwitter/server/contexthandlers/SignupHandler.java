@@ -14,18 +14,13 @@ import java.io.OutputStream;
 public class SignupHandler implements HttpHandler {
 
     public static OutputType signup(User user){
-        //TODO: email and phone both should not be null
-        //TODO: transfer email validation to client
-
 //        String regex = "^(.+)@(.+)$";
 //        Pattern pattern = Pattern.compile(regex);
 //        Matcher matcher = pattern.matcher(email);
 //        if(!matcher.matches())
 //            return OutputType.INVALID_EMAIL;
 
-        OutputType out = Database.getManager().addUser(user);
-
-        return OutputType.SUCCESS;
+        return Database.getManager().addUser(user);
     }
 
     @Override

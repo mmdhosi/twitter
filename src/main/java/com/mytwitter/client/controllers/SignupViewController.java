@@ -42,10 +42,10 @@ public class SignupViewController {
     private TextField lastNameField;
 
     @FXML
-    private TextField passwordField;
+    private PasswordField passwordField;
 
     @FXML
-    private TextField passwordRepeatField;
+    private PasswordField passwordRepeatField;
 
     @FXML
     private TextField phonenumberField;
@@ -68,6 +68,9 @@ public class SignupViewController {
     @FXML
     private ChoiceBox<String> countryChoice;
 
+    @FXML
+    private Label errorLBL;
+
 
 
 
@@ -88,7 +91,6 @@ public class SignupViewController {
 
     @FXML
     private void submitButtonAction(ActionEvent event) {
-        //TODO: uniq bodan
         Alert alert = new Alert(Alert.AlertType.ERROR);
 
         if (Objects.equals(usernameField.getText(), "")) {
@@ -156,13 +158,38 @@ public class SignupViewController {
         String password=passwordField.getText();
         String country=countryChoice.getValue();
         String birthdate= String.valueOf(birthdateField.getValue());
-        //TODO: VERY IMPORTANT!!! set birthday to null (va baghie age hal dari)
-        //TODO: * for password
+        if(Objects.equals(birthdate, "null") || Objects.equals(birthdate, "")){
+            birthdate=null;
+        }
+        if(Objects.equals(firstname, "null") || Objects.equals(firstname, "")){
+            firstname=null;
+        }
+        if(Objects.equals(lastname, "null") || Objects.equals(lastname, "")){
+            lastname=null;
+        }
+        if(Objects.equals(phonenumber, "null") || Objects.equals(phonenumber, "")){
+            phonenumber=null;
+        }
+        if(Objects.equals(country, "null") || Objects.equals(country, "")){
+            country=null;
+        }
 
         User user=new User(username,firstname,lastname,email,phonenumber,password,country,birthdate);
         OutputType out = Requester.signup(user);
         if(out == OutputType.DUPLICATE_USERNAME){
-            //TODO: do the rest
+            errorLBL.setText("Username already exists");
+            waitToFix(alert);
+        }else if(out==OutputType.DUPLICATE_EMAIL){
+            errorLBL.setText("Email already exists");
+            waitToFix(alert);
+        }else if(out==OutputType.DUPLICATE_PHONENUMBER){
+            errorLBL.setText("Phone number already exists");
+            waitToFix(alert);
+
+        }else if(out==OutputType.INVALID){
+            errorLBL.setText("INVALID");
+            waitToFix(alert);
+
         }
 
         currentStage.hide();

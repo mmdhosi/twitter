@@ -107,7 +107,8 @@ public abstract class Tweet {
         return username + ": \n"+ content +
                 "\n  likes: "+likeCount+
                 "  replies: "+replyCount+
-                "  retweets: "+retweetCount+"\n";
+                "  retweets: "+retweetCount+"\n"+
+                liked;
     }
 
 }
