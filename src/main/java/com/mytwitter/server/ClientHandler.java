@@ -41,9 +41,6 @@ public class ClientHandler extends Thread{
     private ArrayList<User> getFollowings(){
         return manager.getFollowings(currentUser.getUserName());
     }
-    private OutputType addTweet(Tweet tweet){
-        return manager.addTweet(tweet);
-    }
     private OutputType addRetweet(int tweet){
         return manager.addRetweet(tweet, currentUser.getUserName());
     }

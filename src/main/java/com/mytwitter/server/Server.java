@@ -71,6 +71,7 @@ public class Server {
             server.createContext("/home", new TimelineHandler()).setAuthenticator(auth);
             server.createContext("/user", new ProfileHandler());
             server.createContext("/users", new UsersHandler()).setAuthenticator(auth);
+            server.createContext("/tweet", new TweetHandler()).setAuthenticator(auth);
 
             server.setExecutor(clientsThreads);
             server.start();

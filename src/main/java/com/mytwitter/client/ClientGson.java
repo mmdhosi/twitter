@@ -3,6 +3,7 @@ package com.mytwitter.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mytwitter.tweet.Tweet;
+import com.mytwitter.util.TweetDeserializer;
 
 public class ClientGson {
     private static final Gson gson = new Gson();

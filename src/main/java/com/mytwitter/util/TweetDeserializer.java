@@ -1,4 +1,4 @@
-package com.mytwitter.client;
+package com.mytwitter.util;
 
 import com.google.gson.*;
 import com.mytwitter.tweet.*;

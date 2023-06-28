@@ -22,7 +22,7 @@ public class Database {
         }
     }
 
-    public Database() {}
+    private Database() {}
 
     public static Database getManager(){
         if(manager == null)
@@ -430,8 +430,6 @@ public class Database {
         return timeline;
     }
 
-
-
     public List<Tweet> getTimeline(String userName){
         if(getUserId(userName) == -1){
             return null;
@@ -504,7 +502,6 @@ public class Database {
         return tweets;
     }
 
-
     public int idTweetByTimeAndUserid(String userName, Timestamp timestamp){
         PreparedStatement statement = null;
         try {
@@ -559,24 +556,24 @@ public class Database {
         }
     }
 
-    public OutputType addTweet(Tweet tweet){
+    public OutputType addTweet(String username, String content, String imgLocation){
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
         PreparedStatement statement = null;
         try {
-            //TODO: handle image
             //TODO:280 char limit
-            //TODO: extract hashtag and add it to its table  DONE
-            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,NULL,?, NULL)");
+            statement = con.prepareStatement("INSERT INTO twitter.tweets (user_id, tweet_type, content, image_location, time) VALUES(?,?,?,?,?)");
 
-            statement.setInt(1, getUserId(tweet.getUserName()));
+            statement.setInt(1, getUserId(username));
             statement.setString(2, "T");
-            statement.setInt(3, tweet.getLikeCount());
-            statement.setInt(4, tweet.getReplyCount());
-            statement.setInt(5, tweet.getRetweetCount());
-            statement.setString(6, tweet.getContent());
-            statement.setTimestamp(7, tweetDate);
-            tweet.setTimestamp(tweetDate);
+            statement.setString(3, content);
+
+            if(imgLocation!=null)
+                statement.setString(4, imgLocation);
+            else
+                statement.setNull(4,Types.VARCHAR);
+
+            statement.setTimestamp(5, tweetDate);
             int newTweetId;
             synchronized (this) {
                 statement.executeUpdate();
@@ -585,13 +582,15 @@ public class Database {
                 resultSet.next();
                 newTweetId = resultSet.getInt(1);
             }
-            extractHashtags(tweet.getContent(), newTweetId);
+            extractHashtags(content, newTweetId);
         } catch (SQLException e) {
             e.printStackTrace();
+            return OutputType.INVALID;
         }
         return OutputType.SUCCESS;
 
     }
+
     public OutputType addRetweet(int retweetedId, String userName){
         //TODO: add count retweet_count  DONE
         //TODO: handle if a retweet gets retweeted  DONE
@@ -666,6 +665,7 @@ public class Database {
         return OutputType.SUCCESS;
 
     }
+
     public OutputType addReply(int tweetToReplyId, String userName, String reply){
         //TODO: add count reply_count  DONE
 
