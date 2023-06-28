@@ -86,6 +86,29 @@ public class Database {
         }
         return null;
     }
+    public Boolean checkFollowed(String usernameToView,String usernameToRequest){
+        ArrayList<User> followings=getFollowings(usernameToRequest);
+        User user=getUser(usernameToView);
+        for (User f:followings) {
+            if(Objects.equals(f.getUserName(), user.getUserName())){
+                return true;
+            }
+        }
+
+        return false;
+    }
+    public Boolean checkBlocked(String usernameToView,String usernameToRequest){
+        ArrayList<User> blocked=getBlocklist(usernameToRequest);
+        User user=getUser(usernameToView);
+        for (User f:blocked) {
+            if(Objects.equals(f.getUserName(), user.getUserName())){
+                return true;
+            }
+        }
+        //haert
+
+        return false;
+    }
     private User getUserFromId(int id){
         try {
             PreparedStatement statement = con.prepareStatement("SELECT * FROM twitter.users WHERE id=?");
@@ -568,7 +591,10 @@ public class Database {
             }
         }
     }
-    public ArrayList findTweetsByHashtags(String hashtag){
+    public ArrayList<Tweet> findTweetsByHashtags(String hashtag){
+        if (!hashtag.contains("#") ) {
+            hashtag="#"+hashtag;
+        }
         ArrayList<Tweet> tweets=new ArrayList<>();
         PreparedStatement statement;
         ResultSet result;

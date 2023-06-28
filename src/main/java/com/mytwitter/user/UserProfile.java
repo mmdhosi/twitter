@@ -12,6 +12,7 @@ import java.util.Base64;
 public class UserProfile implements Serializable {
     User user;
     int countFollowers,countFollowings;
+    Boolean isFollowed,isBlocked;
     String header,avatar;
     ArrayList<Tweet> tweets;
 
@@ -21,6 +22,22 @@ public class UserProfile implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Boolean getFollowed() {
+        return isFollowed;
+    }
+
+    public void setFollowed(Boolean followed) {
+        isFollowed = followed;
+    }
+
+    public Boolean getBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(Boolean blocked) {
+        isBlocked = blocked;
     }
 
     public int getCountFollowers() {

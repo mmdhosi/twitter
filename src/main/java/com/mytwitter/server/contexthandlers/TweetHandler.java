@@ -75,7 +75,7 @@ public class TweetHandler implements HttpHandler {
                     if (!tweet.getImage().equals("")) {
                         imgLocation = downloadImage(tweet.getImage());
                     }
-                    manager.addTweet(username, tweet.getContent(), imgLocation);
+//                    manager.addTweet(username, tweet.getContent(), imgLocation);
                     break;
                 case "quote":
                     int quoteId = Integer.parseInt(segments[3]);

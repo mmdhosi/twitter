@@ -24,15 +24,18 @@ public class ProfileHandler implements HttpHandler {
 
             String requestUri = exchange.getRequestURI().toString();
             String[] segments = requestUri.split("/");
-            String username = segments[segments.length-1];
+            String usernameToView = segments[2];
+            String usernameToRequest = segments[3];
             UserProfile userProfile = new UserProfile();
-            User user = databaseManager.getUser(username);
+            User user = databaseManager.getUser(usernameToView);
 
             if(user != null) {
                 userProfile.setUser(user);
-                userProfile.setAvatar(databaseManager.getAvatar(username));
-                userProfile.setHeader(databaseManager.getHeader(username));
-                userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(username));
+                userProfile.setAvatar(databaseManager.getAvatar(usernameToView));
+                userProfile.setHeader(databaseManager.getHeader(usernameToView));
+                userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(usernameToView));
+                userProfile.setBlocked(databaseManager.checkBlocked(usernameToView,usernameToRequest));
+                userProfile.setFollowed(databaseManager.checkFollowed(usernameToView,usernameToRequest));
 
                 exchange.sendResponseHeaders(404, 0);
                 OutputStream out = exchange.getResponseBody();

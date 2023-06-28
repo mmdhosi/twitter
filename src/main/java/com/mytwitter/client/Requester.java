@@ -292,4 +292,20 @@ public class Requester {
             return null;
         }
     }
+    public ArrayList<UserProfile> hastag(String keyword){
+        try {
+            HttpRequest searchRequest = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/hashtag/"+keyword))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = httpClient.send(searchRequest, HttpResponse.BodyHandlers.ofString());
+            String body = response.body();
+            Type type = new TypeToken<List<UserProfile>>(){}.getType();
+            return ClientGson.getGson().fromJson(body, type);
+
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
