@@ -4,6 +4,8 @@ import com.mytwitter.client.Requester;
 import com.mytwitter.tweet.Quote;
 import com.mytwitter.tweet.Retweet;
 import com.mytwitter.tweet.Tweet;
+import com.mytwitter.user.User;
+import com.mytwitter.user.UserProfile;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,10 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -28,6 +27,7 @@ import org.w3c.dom.events.Event;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -40,10 +40,26 @@ public class HomeController implements Initializable {
     private ListView<Tweet> cardsListView;
 
     @FXML
+    private TextField searchField;
+
+    @FXML
+    private Button searchButton;
+
+    @FXML
     private BorderPane rootPaneV;
     ObservableList<Tweet> items = FXCollections.observableArrayList();;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        // set button image
+        Image image = new Image("file:icons/magnifier.jpg");
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(20);
+        imageView.setFitWidth(20);
+
+        searchButton.setGraphic(imageView);
+
+
         cardsListView.setStyle("-fx-control-inner-background: #FFFFFF;");
 
         cardsListView.setCellFactory(new Callback<ListView<Tweet>, ListCell<Tweet>>() {
@@ -147,6 +163,14 @@ public class HomeController implements Initializable {
                 };
             }
         });
+    }
+
+    @FXML
+    public void searchAction(ActionEvent event){
+
+        String keyword = searchField.getText();
+        ArrayList<UserProfile> searchedUsers = requester.search(keyword);
+        new SearchListController(currentStage, searchedUsers);
     }
 
     public void setCurrentStage(Stage currentStage) {

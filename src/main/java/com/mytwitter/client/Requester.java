@@ -7,6 +7,7 @@ import com.mytwitter.tweet.Tweet;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.OutputType;
+import com.mytwitter.util.TweetDeserializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -15,6 +16,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Requester {
@@ -163,4 +165,20 @@ public class Requester {
         return usersOperationRequest(username, "block", true);
     }
 
+    public ArrayList<UserProfile> search(String keyword){
+        try {
+            HttpRequest searchRequest = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/search/"+keyword))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = httpClient.send(searchRequest, HttpResponse.BodyHandlers.ofString());
+            String body = response.body();
+            Type type = new TypeToken<List<UserProfile>>(){}.getType();
+            return ClientGson.getGson().fromJson(body, type);
+
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -3,8 +3,10 @@ package com.mytwitter.server.database;
 import com.mytwitter.server.Config;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.User;
+import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.OutputType;
 
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -287,8 +289,10 @@ public class Database {
         }
         return OutputType.SUCCESS;
     }
-    public ArrayList<User> serverSearch(String wordToSearch)  {
-        ArrayList<User> users=new ArrayList<>();
+
+    public ArrayList<UserProfile> serverSearch(String wordToSearch)  {
+
+        ArrayList<UserProfile> users=new ArrayList<>();
         wordToSearch="%"+wordToSearch+"%";
         try {
             PreparedStatement statement = con.prepareStatement("SELECT username FROM twitter.users WHERE  first_name LIKE ? or last_name LIKE ? or username LIKE ?");
@@ -297,7 +301,13 @@ public class Database {
             statement.setString(3, wordToSearch);
             ResultSet result = statement.executeQuery();
             while (result.next()) {
-                users.add(getUser(result.getString(1)));
+                //TODO: do the rest
+                String username = result.getString(1);
+                User user = getUser(username);
+                UserProfile profile =new UserProfile();
+                profile.setUser(user);
+                profile.setAvatar(getAvatar(username));
+                users.add(profile);
             }
         } catch (SQLException e) {
             e.printStackTrace();
