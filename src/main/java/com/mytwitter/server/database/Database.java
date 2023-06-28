@@ -568,7 +568,29 @@ public class Database {
             }
         }
     }
+    public ArrayList findTweetsByHashtags(String hashtag){
+        ArrayList<Tweet> tweets=new ArrayList<>();
+        PreparedStatement statement;
+        ResultSet result;
+        try {
+            statement = con.prepareStatement("SELECT hashtag_id FROM hashtag_names WHERE hashtag_name = ?");
+            statement.setString(1, hashtag);
+            result = statement.executeQuery();
+            result.next();
+            statement = con.prepareStatement("SELECT tweet_id FROM tweet_hashtags WHERE hashtag_id = ?");
+            statement.setInt(1, result.getInt(1));
+            result = statement.executeQuery();
+            while (result.next()){
+                tweets.add(getTweet(result.getInt(1)));
+            }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tweets;
+
+
+    }
     public OutputType addTweet(Tweet tweet){
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
