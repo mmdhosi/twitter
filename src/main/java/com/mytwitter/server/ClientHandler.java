@@ -1,6 +1,7 @@
 package com.mytwitter.server;
 
 import com.mytwitter.server.database.Database;
+import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.OutputType;
 import com.mytwitter.tweet.Reply;
 import com.mytwitter.tweet.Tweet;
@@ -32,7 +33,7 @@ public class ClientHandler extends Thread{
     private OutputType unfollow(String usernameToUnfollow){
         return manager.removeFollower(usernameToUnfollow,currentUser.getUserName());
     }
-    private ArrayList<User> userSearch(String wordToSearch){
+    private ArrayList<UserProfile> userSearch(String wordToSearch){
         return manager.serverSearch(wordToSearch);
     }
     private ArrayList<User> getFollowers(){
