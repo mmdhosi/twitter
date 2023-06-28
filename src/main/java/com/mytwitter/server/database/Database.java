@@ -569,6 +569,7 @@ public class Database {
         }
     }
 
+
     public OutputType addTweet(Tweet tweet){
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
