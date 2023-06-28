@@ -3,6 +3,7 @@ package com.mytwitter.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mytwitter.tweet.RequestTweet;
 import com.mytwitter.tweet.Tweet;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
@@ -163,6 +164,116 @@ public class Requester {
     }
     public OutputType unblock(String username) {
         return usersOperationRequest(username, "block", true);
+    }
+
+    private OutputType sendTweetRequest(URI uri, HttpRequest.BodyPublisher bodyPublisher) {
+//        FileInputStream in = null;
+//        String img = "";
+//        try {
+//            in = new FileInputStream("in.jpg");
+//            byte[] bytes = in.readAllBytes();
+//            img = Base64.getEncoder().encodeToString(bytes);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        try {
+            HttpRequest tweetRequest = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .POST(bodyPublisher)
+                    .header("authorization", jwt)
+                    .build();
+            HttpResponse<String> response = httpClient.send(tweetRequest, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200)
+                return OutputType.SUCCESS;
+
+        } catch (IOException | InterruptedException e) {
+            return OutputType.FAILURE;
+        }
+        return OutputType.FAILURE;
+    }
+
+    public OutputType quote(String content, int quoteId) {
+        RequestTweet requestTweet = new RequestTweet();
+        requestTweet.setContent(content);
+
+        URI uri = null;
+        try {
+            uri = new URI("http://localhost:8000/tweet/quote/" + quoteId);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.ofString(gson.toJson(requestTweet));
+
+        return sendTweetRequest(uri, bodyPublisher);
+    }
+
+    public OutputType retweet(int retweetId) {
+        URI uri = null;
+        try {
+            uri = new URI("http://localhost:8000/tweet/retweet/" + retweetId);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.noBody();
+
+        return sendTweetRequest(uri, bodyPublisher);
+    }
+
+    public OutputType regularTweet(String content, String img) {
+        RequestTweet requestTweet = new RequestTweet();
+        requestTweet.setContent(content);
+        if(img == null)
+            img = "";
+        requestTweet.setImage(img);
+        URI uri = null;
+        try {
+            uri = new URI("http://localhost:8000/tweet/regular_tweet");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.ofString(gson.toJson(requestTweet));
+
+        return sendTweetRequest(uri, bodyPublisher);
+    }
+    public OutputType comment(String content, int tweet_id){
+        RequestTweet requestTweet = new RequestTweet();
+        requestTweet.setContent(content);
+        URI uri = null;
+        try {
+            uri = new URI("http://localhost:8000/tweet/comment/"+tweet_id);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.ofString(gson.toJson(requestTweet));
+
+        return sendTweetRequest(uri, bodyPublisher);
+    }
+
+    private OutputType sendLikeRequest(boolean like, int tweetId){
+        try {
+            HttpRequest.Builder likeRequestBuilder = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/tweet/like/"+tweetId))
+                    .header("authorization", jwt);
+            if(like)
+                likeRequestBuilder.POST(HttpRequest.BodyPublishers.noBody());
+            else
+                likeRequestBuilder.DELETE();
+
+            HttpResponse<String> response = httpClient.send(likeRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+            if(response.statusCode() == 200)
+                return OutputType.SUCCESS;
+
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return OutputType.FAILURE;
+    }
+    public OutputType like(int tweetId){
+        return sendLikeRequest(true, tweetId);
+    }
+    public OutputType unlike(int tweetId){
+        return sendLikeRequest(false, tweetId);
     }
 
     public ArrayList<UserProfile> search(String keyword){
