@@ -75,7 +75,7 @@ public class ReplyCell extends ListCell<Reply> {
             repliesButton.setText("💬" + reply.getReplyCount());
             repliesButton.setPrefWidth(40);
             repliesButton.setOnAction(event -> {
-                CommentsViewController.createCommentsView(currentStage, requester, stackPane, reply.getTweetId());
+                CommentsViewController.createCommentsView(currentStage, requester, reply);
             });
 
             TweetCell.setRetweetButton(retweetsButton, reply);

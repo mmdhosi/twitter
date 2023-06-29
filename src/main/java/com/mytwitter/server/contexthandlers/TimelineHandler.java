@@ -30,7 +30,7 @@ public class TimelineHandler implements HttpHandler {
                 json = ServerGson.getGson().toJson(tweets);
                 rCode = 200;
             } else if(action.equals("comments")) {
-                List<Reply> replies = Database.getManager().getReplies(Integer.parseInt(segments[3]));
+                List<Reply> replies = Database.getManager().getReplies(currentUsername, Integer.parseInt(segments[3]));
                 json = ServerGson.getGson().toJson(replies);
                 rCode = 200;
             }

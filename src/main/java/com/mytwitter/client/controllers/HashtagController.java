@@ -184,7 +184,4 @@ public class HashtagController implements Initializable{
             items.setAll(requester.getTimeline());
             cardsListView.setItems(items);
         }
-
-
-
 }

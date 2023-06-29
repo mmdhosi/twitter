@@ -28,6 +28,10 @@ public class Requester {
     private static final Gson gson = ClientGson.getGson();
     private static Requester requester;
 
+    public static Requester getRequester(){
+        return requester;
+    }
+
     public static OutputType signup(User user){
         String jsonRequest = gson.toJson(user);
         try {
@@ -75,8 +79,8 @@ public class Requester {
             e.printStackTrace();
             return null;
         }
-        return new Requester(jwt);
-
+        requester = new Requester(jwt);
+        return requester;
     }
 
     private Requester(String jwt) {

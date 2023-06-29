@@ -26,73 +26,16 @@ import java.util.Set;
 public class TweetCell extends ListCell<Tweet> {
 
     private Stage currentStage;
-    private Requester requester;
 
     public TweetCell(Stage currentStage, Requester requester) {
         this.currentStage = currentStage;
-        this.requester = requester;
     }
-
-    private Button usernameLabel = new Button();
-    private Label typeLabel = new Label();
-    private Label contentLabel = new Label();
-    private Button likesButton = new Button();
-    private Button repliesButton = new Button();
-    private Button retweetsButton = new Button();
-    private ImageView profileImg = new ImageView();
 
     @Override
     protected void updateItem(Tweet tweet, boolean empty) {
         super.updateItem(tweet, empty);
         if (!empty && tweet != null) {
-            //TODO: get profile image
-
-            setProfile(profileImg, "file:profiles/king.jpg");
-
-            setUsername(usernameLabel, tweet, currentStage);
-
-            if (tweet instanceof Retweet) {
-                Retweet retweet = (Retweet) tweet;
-                typeLabel.setText("retweet");
-                contentLabel.setText(retweet.getRetweetedTweet().getContent());
-            } else if (tweet instanceof Quote) {
-                Quote quote = (Quote) tweet;
-//                                typeLabel.setText("quote");
-                //TODO: show the quoted tweet
-                contentLabel.setText(tweet.getContent() + "\n" + "quote" + "\n" + quote.getQuotedTweet().getContent());
-            } else if (tweet instanceof Reply reply) {
-                //TODO: show the replied to tweet
-                Set<String> replyToUsernames = reply.getRepliedToUsernames();
-                //TODO: hyperlink for each username
-                String usernames = "";
-                for (String name : replyToUsernames) {
-                    usernames += name + " ";
-                }
-                typeLabel.setText("Reply to " + usernames);
-                contentLabel.setText(tweet.getContent());
-            } else {
-                contentLabel.setText(tweet.getContent());
-            }
-
-            contentLabel.setStyle("-fx-padding: 3 15 5 15");
-
-
-            setLikeButton(likesButton, tweet, requester);
-
-
-            repliesButton.setText("💬" + tweet.getReplyCount());
-            repliesButton.setPrefWidth(40);
-            repliesButton.setOnAction(event -> {
-                new CommentsViewController(currentStage, requester, tweet.getTweetId());
-            });
-
-            setRetweetButton(retweetsButton, tweet);
-
-
-            HBox hBox = new HBox(likesButton, repliesButton, retweetsButton);
-            hBox.setSpacing(20);
-            setGraphic(new VBox(new HBox(profileImg, usernameLabel), typeLabel, contentLabel, hBox));
-
+            setGraphic(createTweet(currentStage, tweet));
             getStyleClass().add("fx-cell-size: 50px;");
 //                            CardController card = new CardController();
 //                            card.updateDetails(item.getName(), item.getContent());
@@ -102,6 +45,66 @@ public class TweetCell extends ListCell<Tweet> {
         } else {
             setGraphic(null);
         }
+    }
+
+    public static VBox createTweet(Stage currentStage, Tweet tweet){
+        Button usernameLabel = new Button();
+        Label typeLabel = new Label();
+        Label contentLabel = new Label();
+        Button likesButton = new Button();
+        Button repliesButton = new Button();
+        Button retweetsButton = new Button();
+        ImageView profileImg = new ImageView();
+
+        Requester requester = Requester.getRequester();
+
+        //TODO: get profile image
+
+        setProfile(profileImg, "file:profiles/king.jpg");
+
+        setUsername(usernameLabel, tweet, currentStage);
+
+        if (tweet instanceof Retweet) {
+            Retweet retweet = (Retweet) tweet;
+            typeLabel.setText("retweet");
+            contentLabel.setText(retweet.getRetweetedTweet().getContent());
+        } else if (tweet instanceof Quote) {
+            Quote quote = (Quote) tweet;
+//                                typeLabel.setText("quote");
+            //TODO: show the quoted tweet
+            contentLabel.setText(tweet.getContent() + "\n" + "quote" + "\n" + quote.getQuotedTweet().getContent());
+        } else if (tweet instanceof Reply reply) {
+            //TODO: show the replied to tweet
+            Set<String> replyToUsernames = reply.getRepliedToUsernames();
+            //TODO: hyperlink for each username
+            String usernames = "";
+            for (String name : replyToUsernames) {
+                usernames += name + " ";
+            }
+            typeLabel.setText("Reply to " + usernames);
+            contentLabel.setText(tweet.getContent());
+        } else {
+            contentLabel.setText(tweet.getContent());
+        }
+
+        contentLabel.setStyle("-fx-padding: 3 15 5 15");
+
+
+        setLikeButton(likesButton, tweet, requester);
+
+
+        repliesButton.setText("💬" + tweet.getReplyCount());
+        repliesButton.setPrefWidth(40);
+        repliesButton.setOnAction(event -> {
+            new CommentsViewController(currentStage, requester, tweet);
+        });
+
+        setRetweetButton(retweetsButton, tweet);
+
+
+        HBox hBox = new HBox(likesButton, repliesButton, retweetsButton);
+        hBox.setSpacing(20);
+        return new VBox(new HBox(profileImg, usernameLabel), typeLabel, contentLabel, hBox);
     }
 
     public static void setRetweetButton(Button retweetsButton, Tweet tweet) {

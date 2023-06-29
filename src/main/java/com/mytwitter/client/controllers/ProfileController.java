@@ -35,21 +35,7 @@ public class ProfileController {
 
         currentStage.hide();
 
-        Scene homeScene = null;
-        FXMLLoader homeLoader = null;
-        try {
-            homeLoader = new FXMLLoader(getClass().getResource("/fxml/home-view.fxml"));
-            homeScene = new Scene(homeLoader.load());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stage homeStage = new Stage();
-        HomeController controller = homeLoader.getController();
-        homeStage.setScene(homeScene);
-        controller.setCurrentStage(homeStage);
-        controller.setRequester(requester);
-        homeStage.show();
+        new HomeController(currentStage, requester);
     }
 
 
