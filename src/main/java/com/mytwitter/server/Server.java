@@ -69,7 +69,7 @@ public class Server {
             server.createContext("/signup", new SignupHandler());
             server.createContext("/login", new LoginHandler());
             server.createContext("/home", new TimelineHandler()).setAuthenticator(auth);
-            server.createContext("/user", new ProfileHandler());
+            server.createContext("/user", new ProfileHandler()).setAuthenticator(auth);
             server.createContext("/users", new UsersHandler()).setAuthenticator(auth);
             server.createContext("/tweet", new TweetHandler()).setAuthenticator(auth);
             server.createContext("/search", new SearchHandler());

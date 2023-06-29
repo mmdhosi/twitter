@@ -117,6 +117,7 @@ public class Requester {
             HttpRequest GETRequest = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8000/user/"+username))
                     .GET()
+                    .header("authorization", jwt)
                     .build();
 
             HttpResponse<String> GETResponse = httpClient.send(GETRequest, HttpResponse.BodyHandlers.ofString());

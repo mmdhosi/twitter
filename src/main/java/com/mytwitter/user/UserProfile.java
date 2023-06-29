@@ -15,6 +15,16 @@ public class UserProfile implements Serializable {
     Boolean isFollowed,isBlocked;
     String header,avatar;
     ArrayList<Tweet> tweets;
+    ArrayList<UserProfile> followers;
+    ArrayList<UserProfile> followings;
+
+    public void setFollowers(ArrayList<UserProfile> followers) {
+        this.followers = followers;
+    }
+
+    public void setFollowings(ArrayList<UserProfile> followings) {
+        this.followings = followings;
+    }
 
     public User getUser() {
         return user;

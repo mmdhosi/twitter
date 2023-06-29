@@ -109,6 +109,7 @@ public class HomeController implements Initializable {
                                     ProfileController controller = profileLoader.getController();
                                     profileStage.setScene(profileScene);
                                     controller.setCurrentStage(profileStage);
+                                    controller.setRequester(requester);
                                     profileStage.show();
 
                                 }
