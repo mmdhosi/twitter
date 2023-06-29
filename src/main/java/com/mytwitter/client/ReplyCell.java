@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
@@ -38,7 +39,7 @@ public class ReplyCell extends ListCell<Reply> {
         this.stackPane = stackPane;
     }
 
-    private Button usernameLabel = new Button();
+    private Hyperlink usernameLabel = new Hyperlink();
     private Label typeLabel = new Label();
     private Label contentLabel = new Label();
     private Button likesButton = new Button();

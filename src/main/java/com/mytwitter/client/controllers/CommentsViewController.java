@@ -95,7 +95,7 @@ public class CommentsViewController implements Initializable {
             }
         });
 
-        AnchorPane anchorPane = new AnchorPane(TweetCell.createTweet(stage, tweet), repliesListView, newCommentField);
+        AnchorPane anchorPane = new AnchorPane(TweetCell.createTweet(stage, tweet, true), repliesListView, newCommentField);
 
         AnchorPane.setLeftAnchor(repliesListView, 20.);
         AnchorPane.setRightAnchor(repliesListView, 20.);

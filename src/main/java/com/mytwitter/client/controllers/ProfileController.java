@@ -5,6 +5,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.awt.event.ActionEvent;
@@ -17,14 +23,73 @@ import java.util.regex.Pattern;
 
 public class ProfileController {
     @FXML
-    private Button homeButton;
+    private ImageView avatarImageView;
+
     @FXML
-    private Button followButton;
+    private Text bioText;
+
+    @FXML
+    private Label birthdate;
+
+    @FXML
+    private HBox birthdateBox;
+
     @FXML
     private Button blockButton;
 
+    @FXML
+    private Button followButton;
+
+    @FXML
+    private Hyperlink followersLink;
+
+    @FXML
+    private Hyperlink followingLink;
+
+    @FXML
+    private Label fullnameLabel;
+
+    @FXML
+    private ImageView headerImageView;
+
+    @FXML
+    private Button homeButton;
+
+    @FXML
+    private Label joindate;
+
+    @FXML
+    private ListView<?> tweetList;
+
+    @FXML
+    private Label usernameLabel;
+
+    @FXML
+    private HBox webAddressBox;
+
+    @FXML
+    private Hyperlink webAddressLink;
+
     private Stage currentStage;
-    private Requester requester;
+    private Requester requester = Requester.getRequester();
+
+    public ProfileController(Stage currentStage) {
+
+        this.currentStage = currentStage;
+
+        Scene profileScene = null;
+        FXMLLoader profileLoader = null;
+        try {
+            profileLoader = new FXMLLoader(getClass().getResource("/fxml/profile-view.fxml"));
+            profileScene = new Scene(profileLoader.load());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        profileLoader.setController(this);
+        currentStage.setScene(profileScene);
+        currentStage.show();
+    }
 
     public void setCurrentStage(Stage currentStage) {
         this.currentStage = currentStage;
