@@ -9,7 +9,7 @@ public class TestMain {
     public static void main(String[] args) {
         Requester requester = Requester.login("mmd", "1234");
         if (requester != null) {
-            requester.unlike(33);
+            System.out.println(requester.getReplies(28));
         }
     }
 

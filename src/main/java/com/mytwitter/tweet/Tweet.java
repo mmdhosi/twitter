@@ -1,7 +1,5 @@
 package com.mytwitter.tweet;
 
-import com.mytwitter.user.User;
-
 import java.sql.Timestamp;
 import java.util.Objects;
 
@@ -27,13 +25,21 @@ public abstract class Tweet {
 
 
 
-    public void like(){
+    public void setLiked(){
         liked = true;
     }
 
-    public void unlike(){
+    public void setUnliked(){
         liked = false;
     }
+
+    public void addLike(){
+        likeCount++;
+    }
+    public void removeLike(){
+        likeCount--;
+    }
+
     public boolean isLiked(){
         return liked;
     }

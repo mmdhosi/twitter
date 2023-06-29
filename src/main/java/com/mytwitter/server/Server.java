@@ -73,7 +73,7 @@ public class Server {
             server.createContext("/users", new UsersHandler()).setAuthenticator(auth);
             server.createContext("/tweet", new TweetHandler()).setAuthenticator(auth);
             server.createContext("/search", new SearchHandler());
-            server.createContext("/hashtag", new HashtagHandler());
+//            server.createContext("/hashtag", new HashtagHandler());
 
             //TODO: coontext hashtag
 

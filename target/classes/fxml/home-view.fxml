@@ -6,21 +6,37 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="rootPaneV" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mytwitter.client.controllers.HomeController">
+<BorderPane fx:id="rootPaneV" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <center>
         <ListView fx:id="cardsListView" BorderPane.alignment="CENTER" />
     </center>
    <top>
-      <HBox prefWidth="200.0" BorderPane.alignment="TOP_RIGHT">
+      <HBox alignment="TOP_RIGHT" prefWidth="200.0" BorderPane.alignment="TOP_RIGHT">
          <children>
             <TextField fx:id="searchField" prefWidth="200.0">
                <HBox.margin>
-                  <Insets right="10.0" />
+                  <Insets bottom="5.0" right="10.0" top="5.0" />
                </HBox.margin>
             </TextField>
-            <Button fx:id="searchButton" mnemonicParsing="false" onAction="#searchAction" />
+            <Button fx:id="searchButton" mnemonicParsing="false" onAction="#searchAction">
+               <HBox.margin>
+                  <Insets bottom="5.0" right="10.0" top="5.0" />
+               </HBox.margin></Button>
          </children>
       </HBox>
    </top>
+   <left>
+      <VBox alignment="TOP_CENTER" prefHeight="372.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="3.0" />
+            <VBox fx:id="tweetButtonBox" alignment="CENTER">
+               <children>
+                  <Button fx:id="tweetButton" alignment="CENTER" mnemonicParsing="false" onAction="#tweetAction" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </left>
 </BorderPane>

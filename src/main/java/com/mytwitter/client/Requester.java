@@ -3,6 +3,8 @@ package com.mytwitter.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mytwitter.server.ServerGson;
+import com.mytwitter.tweet.Reply;
 import com.mytwitter.tweet.RequestTweet;
 import com.mytwitter.tweet.Tweet;
 import com.mytwitter.user.User;
@@ -87,13 +89,12 @@ public class Requester {
 
     public List<Tweet> getTimeline(){
         // create a custom gson to be able to separate different subclasses of Tweet
-        Gson timelineGson = new GsonBuilder()
-                .registerTypeAdapter(Tweet.class, new TweetDeserializer())
-                .create();
+        Gson timelineGson = ClientGson.getTimelineGson();
+
 
         try {
             HttpRequest GETRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/home"))
+                    .uri(new URI("http://localhost:8000/home/timeline"))
                     .GET()
                     .header("authorization", jwt)
                     .build();
@@ -109,10 +110,27 @@ public class Requester {
         return null;
     }
 
+    public List<Reply> getReplies(int tweetId){
+        try {
+            HttpRequest GETRequest = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/home/comments/"+tweetId))
+                    .GET()
+                    .header("authorization", jwt)
+                    .build();
+            HttpResponse<String> GETResponse = httpClient.send(GETRequest, HttpResponse.BodyHandlers.ofString());
+
+            // Define a type to be able to get a list of replies for a tweet
+            Type type = new TypeToken<List<Reply>>(){}.getType();
+            return ClientGson.getTimelineGson().fromJson(GETResponse.body(), type);
+
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public UserProfile getProfile(String username){
         // create a custom gson to be able to separate different subclasses of Tweet
-
-
         try {
             HttpRequest GETRequest = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8000/user/"+username))
@@ -220,12 +238,9 @@ public class Requester {
         return sendTweetRequest(uri, bodyPublisher);
     }
 
-    public OutputType regularTweet(String content, String img) {
-        RequestTweet requestTweet = new RequestTweet();
-        requestTweet.setContent(content);
-        if(img == null)
-            img = "";
-        requestTweet.setImage(img);
+    public OutputType regularTweet(RequestTweet requestTweet) {
+        if(requestTweet.getImage() == null)
+            requestTweet.setImage("");
         URI uri = null;
         try {
             uri = new URI("http://localhost:8000/tweet/regular_tweet");
