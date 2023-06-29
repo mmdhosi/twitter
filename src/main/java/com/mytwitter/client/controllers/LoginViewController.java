@@ -45,22 +45,7 @@ public class LoginViewController {
         } else {
             currentStage.hide();
 
-            Scene homeScene = null;
-            FXMLLoader homeLoader = null;
-            try {
-                homeLoader = new FXMLLoader(getClass().getResource("/fxml/home-view.fxml"));
-                homeScene = new Scene(homeLoader.load());
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //TODO: not very important. Server is offline
-            Stage homeStage = new Stage();
-            HomeController controller = homeLoader.getController();
-            homeStage.setScene(homeScene);
-            controller.setCurrentStage(homeStage);
-            controller.setRequester(requester);
-            homeStage.show();
+            new HomeController(currentStage, requester);
         }
     }
 

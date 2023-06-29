@@ -60,9 +60,7 @@ public class ClientHandler extends Thread{
     private List<Tweet> getTimeline(){
         return manager.getTimeline(currentUser.getUserName());
     }
-    private List<Reply> getReplies(int tweetId){
-        return manager.getReplies(tweetId, currentUser.getUserName());
-    }
+
     private OutputType block(String usernameToBlock){
         return manager.block(usernameToBlock,currentUser.getUserName());
     }

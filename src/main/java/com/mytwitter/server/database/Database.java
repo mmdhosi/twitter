@@ -6,7 +6,6 @@ import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.OutputType;
 
-import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -429,13 +428,18 @@ public class Database {
                         result.getInt(4),
                         result.getInt(5),
                         result.getInt(6));
-            else if(result.getString(3).equals("P"))
-                resultTweet = new Reply(getUserFromId(result.getInt(2)).getUserName(),
+            else if(result.getString(3).equals("P")) {
+                Tweet repliedToTweet = getTweet(result.getInt(12));
+                Reply reply = new Reply(getUserFromId(result.getInt(2)).getUserName(),
                         result.getString(7),
                         result.getInt(4),
                         result.getInt(5),
                         result.getInt(6),
-                        getTweet(result.getInt(12)));
+                        repliedToTweet);
+                //FIXME: this is temporary. make function that returns all the usernames that this comment is replying to
+                reply.addRepliedToUsername(repliedToTweet.getUserName());
+                resultTweet = reply;
+            }
             if(resultTweet == null)
                 return null;
             resultTweet.setTweetId(result.getInt(1));
@@ -481,13 +485,13 @@ public class Database {
                 Tweet tweet;
                 while(result.next()){
                     //TODO: check if it is liked
-                    tweet=getTweet(result.getInt(1));
+                    tweet = getTweet(result.getInt(1));
                     PreparedStatement preparedStatement = con.prepareStatement("SELECT user_id FROM twitter.likes WHERE tweet_id=?");
                     preparedStatement.setInt(1, getTweet(result.getInt(1)).getTweetId());
                     ResultSet resultSet= preparedStatement.executeQuery();
                     while (resultSet.next()){
                         if(resultSet.getInt(1)==getUserId(userName)){
-                            tweet.like();
+                            tweet.setLiked();
                         }
                     }
                     timeline.add(tweet);
@@ -802,15 +806,23 @@ public class Database {
         return retweets;
     }
 
-    public ArrayList<Reply> getReplies(int tweetToShowId, String username){
+    public ArrayList<Reply> getReplies(int tweetToShowId){
         ArrayList<Reply> replies = new ArrayList<>();
+        PreparedStatement statement;
         try {
-            PreparedStatement statement = con.prepareStatement("""
+            statement = con.prepareStatement("SELECT user_id FROM twitter.tweets WHERE id = ?");
+            statement.setInt(1, tweetToShowId);
+            ResultSet result = statement.executeQuery();
+            result.next();
+            String username = getUserFromId(result.getInt(1)).getUserName();
+            statement = con.prepareStatement("""
                     SELECT id
                     FROM twitter.tweets\s
                     WHERE  replied_to = ?\s""");
+            //TODO: add the parent reply to usernames to the set
+
             statement.setInt(1, tweetToShowId);
-            ResultSet result = statement.executeQuery();
+            result = statement.executeQuery();
 
             while (result.next()) {
                 // get all replies to this tweet
@@ -825,7 +837,7 @@ public class Database {
 
         // get all replies to this tweet's retweets
         for (Retweet retweet:getRetweets(tweetToShowId)){
-            for (Reply reply : getReplies(retweet.getTweetId(), retweet.getUserName())) {
+            for (Reply reply : getReplies(retweet.getTweetId())) {
                 reply.addRepliedToUsername(retweet.getUserName());
                 replies.add(reply);
             }

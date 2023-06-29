@@ -6,14 +6,16 @@ import com.mytwitter.server.ServerGson;
 import com.mytwitter.util.OutputType;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class UsersHandler implements HttpHandler {
+    private static final Logger log = LoggerFactory.getLogger(UsersHandler.class);
     Database dbManager = Database.getManager();
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-
         String username = (String) exchange.getAttribute("username");
         Gson gson = ServerGson.getGson();
         String uri = exchange.getRequestURI().toString();

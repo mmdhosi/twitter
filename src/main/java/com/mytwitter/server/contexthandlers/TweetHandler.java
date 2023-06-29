@@ -5,11 +5,14 @@ import com.mytwitter.server.database.Database;
 import com.mytwitter.tweet.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Base64;
 
 public class TweetHandler implements HttpHandler {
+    private static final Logger log = LoggerFactory.getLogger(UsersHandler.class);
     Database manager = Database.getManager();
 
     private RequestTweet getTweet(InputStream in) throws IOException {
@@ -64,6 +67,9 @@ public class TweetHandler implements HttpHandler {
         String[] segments = requestUri.split("/");
         String action = segments[2];
         String username = (String) exchange.getAttribute("username");
+
+        log.info("New "+action+" request received for "+ username);
+
 
         boolean invalid = false;
         try {

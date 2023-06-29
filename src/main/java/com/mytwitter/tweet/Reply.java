@@ -1,11 +1,13 @@
 package com.mytwitter.tweet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Reply extends Tweet {
     private final String type = "Reply";
-    Tweet repliedTo;
-    ArrayList<String> repliedToUsernames = new ArrayList<>();
+    private Tweet repliedTo;
+    private Set<String> repliedToUsernames = new HashSet<>();
 
     public Reply(String username, String content, int likeCount, int replyCount, int retweetCount, Tweet repliedTo) {
         super(username, content, likeCount, replyCount, retweetCount);
@@ -14,6 +16,10 @@ public class Reply extends Tweet {
     //TODO: get replies from a tweet and its retweets
     public void addRepliedToUsername(String username){
         repliedToUsernames.add(username);
+    }
+
+    public Set<String> getRepliedToUsernames() {
+        return repliedToUsernames;
     }
 
     public String getType() {
