@@ -195,8 +195,6 @@ public class Database {
             log.info("no bio found for user: "+ username);
             return new Bio();
         }
-
-
     }
 
     public OutputType addAvatar(String location, String username) {

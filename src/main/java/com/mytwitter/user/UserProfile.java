@@ -1,5 +1,6 @@
 package com.mytwitter.user;
 
+import com.mytwitter.tweet.Bio;
 import com.mytwitter.tweet.Tweet;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class UserProfile implements Serializable {
     ArrayList<Tweet> tweets;
     ArrayList<UserProfile> followers;
     ArrayList<UserProfile> followings;
+    Bio bio;
 
     public void setFollowers(ArrayList<UserProfile> followers) {
         this.followers = followers;

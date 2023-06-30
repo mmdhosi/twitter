@@ -27,6 +27,7 @@ public class Requester {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final Gson gson = ClientGson.getGson();
     private static Requester requester;
+    private static String username;
 
     public static Requester getRequester() {
         return requester;
@@ -151,7 +152,7 @@ public class Requester {
                     .build();
 
             HttpResponse<String> GETResponse = httpClient.send(GETRequest, HttpResponse.BodyHandlers.ofString());
-            return ClientGson.getGson().fromJson(GETResponse.body(), UserProfile.class);
+            return ClientGson.getTimelineGson().fromJson(GETResponse.body(), UserProfile.class);
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();

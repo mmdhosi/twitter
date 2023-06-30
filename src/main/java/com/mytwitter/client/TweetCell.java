@@ -39,6 +39,7 @@ public class TweetCell extends ListCell<Tweet> {
     protected void updateItem(Tweet tweet, boolean empty) {
         super.updateItem(tweet, empty);
         if (!empty && tweet != null) {
+            //TODO: handle tweet image
             setGraphic(createTweet(currentStage, tweet, true, true));
             getStyleClass().add("fx-cell-size: 50px;");
 //                            CardController card = new CardController();

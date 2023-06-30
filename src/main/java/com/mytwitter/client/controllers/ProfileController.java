@@ -37,7 +37,7 @@ public class ProfileController {
 
         currentStage.hide();
 
-        new HomeController(currentStage, requester);
+        new HomeController(currentStage);
     }
 
 
