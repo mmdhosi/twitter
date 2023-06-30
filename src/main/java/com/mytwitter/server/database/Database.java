@@ -517,7 +517,7 @@ public class Database {
         return null;
     }
 
-    private HashSet<Tweet> getFaveStars(){
+    private HashSet<Tweet> getFaveStars(String userName){
         HashSet<Tweet> timeline = new HashSet<>();
 
         try {
@@ -525,7 +525,11 @@ public class Database {
             statement.setInt(1, FAVE_STAR_LIKE_COUNT);
             ResultSet result = statement.executeQuery();
             while(result.next()){
-                timeline.add(getTweet(result.getInt(1)));
+                Tweet tweet=getTweet(result.getInt(1));
+                if(checkIfLiked(tweet.getTweetId(), userName))
+                    tweet.setLiked();
+                timeline.add(tweet);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -562,7 +566,7 @@ public class Database {
                 e.printStackTrace();
             }
         }
-        timeline.addAll(getFaveStars());
+        timeline.addAll(getFaveStars(userName));
         List<Tweet> tweets=new ArrayList<>(timeline);
         Collections.sort(tweets, new Comparator<Tweet>() {
             @Override

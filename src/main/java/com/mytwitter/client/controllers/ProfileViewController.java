@@ -190,7 +190,9 @@ public class ProfileViewController implements Initializable {
         fullnameLabel.setText(user.getFullName());
         usernameLabel.setText(user.getUserName());
         try {
-            birthdate.setText(parseDate(user.getBirthdate()));
+            if(user.getBirthdate()!=null) {
+                birthdate.setText(parseDate(user.getBirthdate()));
+            }
         } catch (ParseException e) {
             birthdateBox.setVisible(false);
         }
@@ -244,6 +246,7 @@ public class ProfileViewController implements Initializable {
         if (BLOCK.equals(blockButton.getText())) {
             requester.block(username);
             blockButton.setText(UNBLOCK);
+            followButton.setText("follow");
         } else {
             requester.unblock(username);
             blockButton.setText(BLOCK);

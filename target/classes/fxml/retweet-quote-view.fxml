@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="437.0" prefWidth="510.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <tabs>
+          <Tab closable="false" text="Retweet">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="289.0" prefWidth="510.0">
+                     <children>
+                        <VBox fx:id="retweetBox" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="60.0" />
+                        <Button fx:id="retweetSubmit" layoutX="422.0" layoutY="211.0" mnemonicParsing="false" text="Submit" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="30.0">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                        <Label layoutX="14.0" layoutY="33.0" text="Retweet:" textFill="#6b6a6a">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab closable="false" text="Quote">
+              <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="382.0" prefWidth="510.0">
+                      <children>
+                        <TextArea fx:id="quoteTextArea" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="240.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="60.0">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </TextArea>
+                          <VBox fx:id="quoteBox" layoutX="10.0" layoutY="68.0" AnchorPane.bottomAnchor="52.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="180.0" />
+                          <Button fx:id="quoteSubmit" layoutX="422.0" layoutY="211.0" mnemonicParsing="false" text="Submit" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="30.0">
+                              <font>
+                                  <Font size="14.0" />
+                              </font>
+                          </Button>
+                          <Label layoutX="14.0" layoutY="33.0" text="Quote:" textFill="#6b6a6a">
+                              <font>
+                                  <Font size="18.0" />
+                              </font>
+                          </Label>
+                      </children>
+                  </AnchorPane>
+              </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

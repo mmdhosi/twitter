@@ -149,6 +149,8 @@ public class SignupViewController {
                 waitToFix(alert);
             }
             emailError.setText("");
+        }else {
+            email=null;
         }
 
         String username = usernameField.getText();
