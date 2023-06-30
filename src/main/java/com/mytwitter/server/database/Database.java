@@ -1,10 +1,13 @@
 package com.mytwitter.server.database;
 
 import com.mytwitter.server.Config;
+import com.mytwitter.server.contexthandlers.LoginHandler;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.OutputType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -18,6 +21,9 @@ public class Database {
     private static Connection con;
     private static Database manager;
     private final static int FAVE_STAR_LIKE_COUNT = 10;
+
+    private static final Logger log = LoggerFactory.getLogger(Database.class);
+
 
     static{
         try {
@@ -53,7 +59,7 @@ public class Database {
         } catch (SQLException e) {
             if(e.getErrorCode() == 1062){
                 String message = e.getMessage();
-                System.out.println(message);
+                log.info(message);
                 if(message.contains("'users.user_name'"))
                     return OutputType.DUPLICATE_USERNAME;
                 else if(message.contains("'users.email_UNIQUE'"))
@@ -74,7 +80,7 @@ public class Database {
             ResultSet result = statement.executeQuery();
             result.next();
 
-            return new User(
+            User user = new User(
                     result.getString(2),
                     result.getString(3),
                     result.getString(4),
@@ -83,6 +89,8 @@ public class Database {
                     result.getString(7),
                     result.getString(8),
                     result.getString(9));
+            user.setJoinDate(result.getString(10));
+            return user;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -137,8 +145,9 @@ public class Database {
 
     //TODO: add feature for editing bio record
 
-    public int createBioRecord(String username, Bio bio){
+    private int createBioRecord(String username, Bio bio){
         try {
+            // add a new bio record
             PreparedStatement statement = con.prepareStatement("INSERT INTO twitter.bio VALUES(DEFAULT ,?,?,?,?)");
             statement.setString(1, username);
             statement.setString(2, bio.getLocation());
@@ -146,6 +155,7 @@ public class Database {
             statement.setString(4, bio.getText());
             statement.executeUpdate();
 
+            // get the new bio id to connect it to user in users table
             statement = con.prepareStatement("SELECT id FROM twitter.bio WHERE username = ?");
             statement.setString(1, username);
             ResultSet result = statement.executeQuery();
@@ -171,6 +181,22 @@ public class Database {
         }
 
         return OutputType.SUCCESS;
+    }
+
+    public Bio getBio(String username){
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT text, location, web_adress FROM twitter.bio WHERE username = ?");
+            statement.setString(1, username);
+            ResultSet result = statement.executeQuery();
+            result.next();
+            return new Bio(result.getString(1), result.getString(2), result.getString(3));
+
+        } catch (SQLException e) {
+            log.info("no bio found for user: "+ username);
+            return new Bio();
+        }
+
+
     }
 
     public OutputType addAvatar(String location, String username) {
@@ -575,7 +601,6 @@ public class Database {
                 return o1.getTimestamp().compareTo(o2.getTimestamp());
             }
         });
-        System.out.println(tweets);
         return tweets;
     }
 
@@ -659,24 +684,24 @@ public class Database {
 
 
     }
-    public OutputType addTweet(Tweet tweet){
+    public OutputType addTweet(String username, String content, String imgLocation){
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
         PreparedStatement statement = null;
         try {
-            //TODO: handle image
             //TODO:280 char limit
-            //TODO: extract hashtag and add it to its table  DONE
-            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,NULL,?, NULL)");
+            statement = con.prepareStatement("INSERT INTO twitter.tweets(user_id,tweet_type,content, image_location, time) VALUES(?,?,?,?,?)");
 
-            statement.setInt(1, getUserId(tweet.getUserName()));
+            statement.setInt(1, getUserId(username));
             statement.setString(2, "T");
-            statement.setInt(3, tweet.getLikeCount());
-            statement.setInt(4, tweet.getReplyCount());
-            statement.setInt(5, tweet.getRetweetCount());
-            statement.setString(6, tweet.getContent());
-            statement.setTimestamp(7, tweetDate);
-            tweet.setTimestamp(tweetDate);
+            statement.setString(3, content);
+            statement.setTimestamp(5, tweetDate);
+            if(imgLocation != null && !imgLocation.equals(""))
+                statement.setString(4, imgLocation);
+            else
+                statement.setNull(4, Types.VARCHAR);
+
+
             int newTweetId;
             synchronized (this) {
                 statement.executeUpdate();
@@ -685,7 +710,7 @@ public class Database {
                 resultSet.next();
                 newTweetId = resultSet.getInt(1);
             }
-            extractHashtags(tweet.getContent(), newTweetId);
+            extractHashtags(content, newTweetId);
         } catch (SQLException e) {
             e.printStackTrace();
         }

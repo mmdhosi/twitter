@@ -9,6 +9,8 @@ import com.mytwitter.tweet.Retweet;
 import com.mytwitter.tweet.Tweet;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
+import com.mytwitter.util.ImageBase64;
+import com.mytwitter.util.ProfileImage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -38,7 +40,7 @@ import java.util.Set;
 public class HomeController implements Initializable {
 
     private Stage currentStage;
-    private Requester requester;
+    private Requester requester = Requester.getRequester();
 
     @FXML
     private ListView<Tweet> cardsListView;
@@ -51,18 +53,23 @@ public class HomeController implements Initializable {
 
     @FXML
     private BorderPane rootPaneV;
-
-    @FXML
-    private VBox tweetButtonBox;
     @FXML
     private Button tweetButton;
+
+    @FXML
+    private Button logoutButton;
+
+    @FXML
+    private Button profileButton;
+
+    @FXML
+    private ImageView profileImageView;
 
     ObservableList<Tweet> items = FXCollections.observableArrayList();
 
 
-    public HomeController(Stage currentStage, Requester requester) {
+    public HomeController(Stage currentStage) {
         this.currentStage = currentStage;
-        this.requester = requester;
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home-view.fxml"));
@@ -83,6 +90,11 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTweetButtonFeatures(60);
+        String currentUsername = Requester.getUsername();
+        profileImageView.setImage(ProfileImage.getAvatarImage(requester.getUserAvatar(currentUsername)));
+
+        profileButton.setOnAction(event -> new ProfileViewController(currentStage, currentUsername));
+        logoutButton.setOnAction(event -> new WelcomeViewController(currentStage));
 
         setMagnifierButtonFeatures();
 
@@ -97,6 +109,7 @@ public class HomeController implements Initializable {
             @Override
             public ListCell<Tweet> call(ListView<Tweet> cardModelListView) {
 //                return new ListViewCell();
+                //TODO: handle tweet time
                 return new TweetCell(currentStage, requester);
             }
         });

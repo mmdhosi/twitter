@@ -29,11 +29,7 @@ public class Client extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/welcome-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-
-        WelcomeViewController controller = fxmlLoader.getController();
-        controller.setCurrentStage(stage);
+        new WelcomeViewController(stage);
 //
 //        Label label = new Label("Hello, JavaFX!");
 //        label.setLayoutX(20);
@@ -49,9 +45,6 @@ public class Client extends Application {
 //        Pane pane = (Pane) scene.getRoot();
 //        pane.getChildren().addAll(label, button);
 
-        stage.setScene(scene);
-        stage.setTitle("JavaFX Test");
-        stage.show();
     }
 }
 

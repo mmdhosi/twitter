@@ -45,7 +45,7 @@ public class LoginViewController {
         } else {
             currentStage.hide();
 
-            new HomeController(currentStage, requester);
+            new HomeController(currentStage);
         }
     }
 

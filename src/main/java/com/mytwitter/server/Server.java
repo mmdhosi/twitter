@@ -3,6 +3,7 @@ package com.mytwitter.server;
 import com.google.gson.Gson;
 import com.mytwitter.server.contexthandlers.*;
 import com.mytwitter.server.database.Database;
+import com.mytwitter.tweet.Bio;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpPrincipal;
 import com.sun.net.httpserver.HttpServer;

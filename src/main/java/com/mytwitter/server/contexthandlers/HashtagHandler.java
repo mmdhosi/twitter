@@ -23,12 +23,17 @@ public class HashtagHandler implements HttpHandler {
 
 
         ArrayList<Tweet> foundTweets = databaseManager.findTweetsByHashtags(keyword);
-        String json = ServerGson.getGson().toJson(foundTweets);
+        if(foundTweets == null){
+            exchange.sendResponseHeaders(404, 0);
+        } else {
 
-        exchange.sendResponseHeaders(200, 0);
-        OutputStream out = exchange.getResponseBody();
-        out.write(json.getBytes());
-        out.close();
+            String json = ServerGson.getGson().toJson(foundTweets);
+
+            exchange.sendResponseHeaders(200, 0);
+            OutputStream out = exchange.getResponseBody();
+            out.write(json.getBytes());
+            out.close();
+        }
         exchange.close();
     }
 }

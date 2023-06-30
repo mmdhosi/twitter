@@ -1,6 +1,5 @@
 package com.mytwitter.user;
 
-import com.mytwitter.tweet.Bio;
 import com.mytwitter.tweet.Tweet;
 
 import java.io.IOException;
@@ -18,16 +17,6 @@ public class UserProfile implements Serializable {
     ArrayList<Tweet> tweets;
     ArrayList<UserProfile> followers;
     ArrayList<UserProfile> followings;
-    Bio bio;
-
-
-    public Bio getBio() {
-        return bio;
-    }
-
-    public void setBio(Bio bio) {
-        this.bio = bio;
-    }
 
     public void setFollowers(ArrayList<UserProfile> followers) {
         this.followers = followers;
@@ -89,6 +78,10 @@ public class UserProfile implements Serializable {
             return null;
         }
     }
+    public Bio getBio(){
+        return bio;
+    }
+
     public void setHeader(Blob header) {
         if(header != null)
             this.header = convertImageToString(header);
@@ -109,6 +102,10 @@ public class UserProfile implements Serializable {
 
     public void setTweets(ArrayList<Tweet> tweets) {
         this.tweets = tweets;
+    }
+
+    public void setBio(Bio bio) {
+        this.bio = bio;
     }
 
     @Override

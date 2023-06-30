@@ -1,21 +1,13 @@
 package com.mytwitter.client.controllers;
 
-import com.mytwitter.tweet.Quote;
-import com.mytwitter.tweet.Retweet;
-import com.mytwitter.tweet.Tweet;
 import com.mytwitter.user.UserProfile;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -35,10 +27,12 @@ public class SearchListController implements Initializable {
     @FXML
     ListView<UserProfile> listView;
 
+    private Stage stage;
     @FXML
     ArrayList<UserProfile> profiles;
 
     public SearchListController(Stage stage, ArrayList<UserProfile> profiles) {
+        this.stage = stage;
         this.profiles = profiles;
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/searchlist-view.fxml"));
@@ -78,7 +72,7 @@ public class SearchListController implements Initializable {
             @Override
             public ListCell<UserProfile> call(ListView<UserProfile> cardModelListView) {
                 return new ListCell<UserProfile>() {
-                    private Button usernameButton = new Button();
+                    private Hyperlink username = new Hyperlink();
                     private Label nameLabel = new Label();
                     private ImageView profileImg = new ImageView();
 
@@ -98,37 +92,15 @@ public class SearchListController implements Initializable {
                             nameLabel.setText(profile.getUser().getFirstName() + " " + profile.getUser().getLastName());
 
 
-                            usernameButton.setText(profile.getUser().getUserName());
-                            usernameButton.setStyle("-fx-padding: 3");
-//                            usernameButton.setOnAction(new EventHandler<ActionEvent>() {
-//                                @Override
-//                                public void handle(ActionEvent event) {
-//                                    currentStage.hide();
-//
-//
-//                                    Scene profileScene = null;
-//                                    FXMLLoader profileLoader = null;
-//                                    try {
-//                                        profileLoader = new FXMLLoader(getClass().getResource("/fxml/profile-view.fxml"));
-//                                        profileScene = new Scene(profileLoader.load());
-//
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                    Stage profileStage = new Stage();
-//                                    ProfileController controller = profileLoader.getController();
-//                                    profileStage.setScene(profileScene);
-//                                    controller.setCurrentStage(profileStage);
-//                                    profileStage.show();
-//
-//                                }
-//                            });
-
-
+                            username.setText(profile.getUser().getUserName());
+                            username.setStyle("-fx-padding: 3");
+                            username.setOnAction(event -> {
+                                new ProfileViewController(stage, username.getText());
+                            });
 
                             HBox hBox = new HBox(profileImg, nameLabel);
                             hBox.setSpacing(20);
-                            setGraphic(new VBox(hBox, usernameButton));
+                            setGraphic(new VBox(hBox, username));
 
                             getStyleClass().add("fx-cell-size: 50px;");
 //                            CardController card = new CardController();

@@ -25,4 +25,8 @@ public class Reply extends Tweet {
     public String getType() {
         return type;
     }
+
+    public Tweet getRepliedTo() {
+        return repliedTo;
+    }
 }

@@ -4,23 +4,33 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPaneV" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mytwitter.client.controllers.HashtagController">
+<BorderPane fx:id="rootPaneV" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <center>
-        <ListView fx:id="cardsListView" BorderPane.alignment="CENTER" />
+        <ListView fx:id="listView" BorderPane.alignment="CENTER" />
     </center>
     <top>
-        <HBox prefWidth="200.0" BorderPane.alignment="TOP_RIGHT">
+        <AnchorPane>
             <children>
-                <TextField fx:id="searchField" prefWidth="200.0">
-                    <HBox.margin>
-                        <Insets right="10.0" />
-                    </HBox.margin>
-                </TextField>
-                <Button fx:id="searchButton" mnemonicParsing="false" onAction="#searchAction" />
+            <Button fx:id="homeButton" mnemonicParsing="false" text="Home" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+               <font>
+                  <Font size="14.0" />
+               </font></Button>
+            <HBox alignment="CENTER" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="150.0" AnchorPane.topAnchor="10.0">
+               <children>
+                      <TextField fx:id="searchField" prefWidth="200.0">
+                          <HBox.margin>
+                              <Insets right="10.0" />
+                          </HBox.margin>
+                      </TextField>
+                      <Button fx:id="searchButton" mnemonicParsing="false" onAction="#searchAction" />
+               </children>
+            </HBox>
             </children>
-        </HBox>
+        </AnchorPane>
     </top>
 </BorderPane>

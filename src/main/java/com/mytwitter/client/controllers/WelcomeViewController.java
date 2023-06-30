@@ -22,6 +22,19 @@ public class WelcomeViewController  {
     @FXML
     private Button signupButton;
 
+    public WelcomeViewController(Stage currentStage) {
+        this.currentStage = currentStage;
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/welcome-view.fxml"));
+        try {
+            fxmlLoader.setController(this);
+            Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+            currentStage.setScene(scene);
+            currentStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     private void signupAction(ActionEvent event) {
         currentStage.hide();

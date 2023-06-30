@@ -28,11 +28,11 @@ public class Requester {
     private static final Gson gson = ClientGson.getGson();
     private static Requester requester;
 
-    public static Requester getRequester(){
+    public static Requester getRequester() {
         return requester;
     }
 
-    public static OutputType signup(User user){
+    public static OutputType signup(User user) {
         String jsonRequest = gson.toJson(user);
         try {
             HttpRequest signupRequest = HttpRequest.newBuilder()
@@ -41,15 +41,15 @@ public class Requester {
                     .build();
             HttpResponse<String> GETResponse = httpClient.send(signupRequest, HttpResponse.BodyHandlers.ofString());
             // TODO: check response codes (duplicates)
-            if(GETResponse.statusCode()==200){
+            if (GETResponse.statusCode() == 200) {
                 return OutputType.SUCCESS;
             } else {
                 String response = GETResponse.body();
-                if(response.equals("Username already exists")){
+                if (response.equals("Username already exists")) {
                     return OutputType.DUPLICATE_USERNAME;
-                } else if(response.equals("Email already exists")) {
+                } else if (response.equals("Email already exists")) {
                     return OutputType.DUPLICATE_EMAIL;
-                } else if(response.equals("Phone number already exists")){
+                } else if (response.equals("Phone number already exists")) {
                     return OutputType.DUPLICATE_PHONENUMBER;
                 }
             }
@@ -60,7 +60,7 @@ public class Requester {
         return OutputType.INVALID;
     }
 
-    public static Requester login(String username, String password){
+    public static Requester login(String username, String password) {
         User user = new User(username, password);
         String jsonRequest = gson.toJson(user);
         String jwt;
@@ -70,7 +70,7 @@ public class Requester {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                     .build();
             HttpResponse<String> GETResponse = httpClient.send(loginRequest, HttpResponse.BodyHandlers.ofString());
-            if(GETResponse.statusCode() == 200)
+            if (GETResponse.statusCode() == 200)
                 jwt = GETResponse.headers().map().get("authorization").get(0);
             else
                 return null;
@@ -80,7 +80,16 @@ public class Requester {
             return null;
         }
         requester = new Requester(jwt);
+        setUsername(username);
         return requester;
+    }
+
+    public static String getUsername() {
+        return username;
+    }
+
+    public static void setUsername(String username) {
+        Requester.username = username;
     }
 
     private Requester(String jwt) {
@@ -91,7 +100,7 @@ public class Requester {
         return jwt;
     }
 
-    public List<Tweet> getTimeline(){
+    public List<Tweet> getTimeline() {
         // create a custom gson to be able to separate different subclasses of Tweet
         Gson timelineGson = ClientGson.getTimelineGson();
 
@@ -114,11 +123,10 @@ public class Requester {
         return null;
     }
 
-
-    public List<Reply> getReplies(int tweetId){
+    public List<Reply> getReplies(int tweetId) {
         try {
             HttpRequest GETRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/home/comments/"+tweetId))
+                    .uri(new URI("http://localhost:8000/home/comments/" + tweetId))
                     .GET()
                     .header("authorization", jwt)
                     .build();
@@ -134,17 +142,16 @@ public class Requester {
         return null;
     }
 
-    public UserProfile getProfile(String username){
-        // create a custom gson to be able to separate different subclasses of Tweet
+    public UserProfile getProfile(String request) {
         try {
             HttpRequest GETRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/user/"+username))
+                    .uri(new URI("http://localhost:8000/user/" + request))
                     .GET()
                     .header("authorization", jwt)
                     .build();
 
             HttpResponse<String> GETResponse = httpClient.send(GETRequest, HttpResponse.BodyHandlers.ofString());
-            return ClientGson.getTimelineGson().fromJson(GETResponse.body(), UserProfile.class);
+            return ClientGson.getGson().fromJson(GETResponse.body(), UserProfile.class);
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
@@ -152,13 +159,20 @@ public class Requester {
         }
     }
 
-    public OutputType usersOperationRequest(String username, String operation, boolean isDeleteRequest){
+    public String getUserAvatar(String username) {
+        UserProfile userProfile = getProfile(username+"/avatar");
+        if(userProfile!=null)
+            return userProfile.getAvatar();
+        return null;
+    }
+
+    public OutputType usersOperationRequest(String username, String operation, boolean isDeleteRequest) {
         HttpRequest opRequest = null;
         try {
             HttpRequest.Builder opRequestBuilder = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8000/users/" + operation + "/" + username))
                     .header("authorization", jwt);
-            if(isDeleteRequest){
+            if (isDeleteRequest) {
                 opRequestBuilder.DELETE();
             } else {
                 opRequestBuilder.POST(HttpRequest.BodyPublishers.noBody());
@@ -180,12 +194,15 @@ public class Requester {
     public OutputType follow(String username) {
         return usersOperationRequest(username, "follow", false);
     }
+
     public OutputType unfollow(String username) {
         return usersOperationRequest(username, "follow", true);
     }
+
     public OutputType block(String username) {
         return usersOperationRequest(username, "block", false);
     }
+
     public OutputType unblock(String username) {
         return usersOperationRequest(username, "block", true);
     }
@@ -245,7 +262,7 @@ public class Requester {
     }
 
     public OutputType regularTweet(RequestTweet requestTweet) {
-        if(requestTweet.getImage() == null)
+        if (requestTweet.getImage() == null)
             requestTweet.setImage("");
         URI uri = null;
         try {
@@ -313,17 +330,21 @@ public class Requester {
             return null;
         }
     }
-    public ArrayList<UserProfile> hashtag(String keyword){
+
+    public ArrayList<Tweet> getHashtagTweets(String keyword) {
         try {
             HttpRequest searchRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/hashtag/"+keyword))
+                    .uri(new URI("http://localhost:8000/hashtag/" + keyword))
                     .GET()
                     .build();
             HttpResponse<String> response = httpClient.send(searchRequest, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            Type type = new TypeToken<List<UserProfile>>(){}.getType();
-            return ClientGson.getGson().fromJson(body, type);
-
+            if (response.statusCode() == 404)
+                return null;
+            else {
+                String body = response.body();
+                Type type = new TypeToken<List<Tweet>>(){}.getType();
+                return ClientGson.getTimelineGson().fromJson(body, type);
+            }
         } catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
             return null;

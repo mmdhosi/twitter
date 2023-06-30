@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.Base64;
 
 public class TweetHandler implements HttpHandler {
-    private static final Logger log = LoggerFactory.getLogger(UsersHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(TweetHandler.class);
     Database manager = Database.getManager();
 
     private RequestTweet getTweet(InputStream in) throws IOException {
@@ -81,7 +81,8 @@ public class TweetHandler implements HttpHandler {
                     if (!tweet.getImage().equals("")) {
                         imgLocation = downloadImage(tweet.getImage());
                     }
-//                    manager.addTweet(username, tweet.getContent(), imgLocation);
+
+                    manager.addTweet(username, tweet.getContent(), imgLocation);
                     break;
                 case "quote":
                     int quoteId = Integer.parseInt(segments[3]);
