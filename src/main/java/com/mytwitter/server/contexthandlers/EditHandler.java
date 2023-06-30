@@ -28,8 +28,10 @@ public class EditHandler implements HttpHandler {
             in.close();
             String requestJson = new String(request);
             UserProfile userProfile = gson.fromJson(requestJson, UserProfile.class);
+
             if ((!Objects.equals(userProfile.getUser().getUserName(), usernameToRequest))){
                 System.out.println("INVALID");
+                exchange.sendResponseHeaders(401, 0);
                 exchange.close();
                 return;
             }

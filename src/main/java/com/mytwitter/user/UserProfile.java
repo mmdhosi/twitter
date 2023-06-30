@@ -84,18 +84,16 @@ public class UserProfile implements Serializable {
         return bio;
     }
 
-    public void setHeader(Blob header) {
-        if(header != null)
-            this.header = convertImageToString(header);
+    public void setHeader(String img){
+        this.header = img;
     }
 
     public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(Blob avatar) {
-        if(avatar != null)
-            this.avatar = convertImageToString(avatar);
+    public void setAvatar(String img){
+        this.avatar = img;
     }
 
     public ArrayList<Tweet> getTweets() {

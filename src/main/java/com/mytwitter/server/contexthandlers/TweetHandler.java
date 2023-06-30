@@ -3,6 +3,7 @@ package com.mytwitter.server.contexthandlers;
 import com.mytwitter.server.ServerGson;
 import com.mytwitter.server.database.Database;
 import com.mytwitter.tweet.*;
+import com.mytwitter.util.ImageBase64;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
@@ -21,44 +22,7 @@ public class TweetHandler implements HttpHandler {
         return result;
     }
 
-    private String getNewId(){
-        try {
-            FileInputStream in = new FileInputStream("tweetImages/last_id.txt");
-            int lastId = Integer.parseInt(new String(in.readAllBytes()));
-            in.close();
-            String newId = (""+(lastId+1));
 
-            FileOutputStream out = new FileOutputStream("tweetImages/last_id.txt");
-            out.write(newId.getBytes());
-            out.close();
-            return newId;
-        } catch (FileNotFoundException e) {
-            File dir = new File("tweetImages");
-            dir.mkdir();
-            try {
-                FileOutputStream out = new FileOutputStream("tweetImages/last_id.txt");
-                out.write("1".getBytes());
-                out.close();
-                return "1";
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private String downloadImage(String image){
-        byte[] bytes = Base64.getDecoder().decode(image);
-        String newLocation = "tweetImages/"+getNewId()+".jpg";
-        try(FileOutputStream out = new FileOutputStream(newLocation)) {
-            out.write(bytes);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        return newLocation;
-    }
 
     @Override
     public void handle(HttpExchange exchange){
@@ -79,7 +43,7 @@ public class TweetHandler implements HttpHandler {
 
                     String imgLocation = null;
                     if (!tweet.getImage().equals("")) {
-                        imgLocation = downloadImage(tweet.getImage());
+                        imgLocation = ImageBase64.downloadImage("tweetImages/",tweet.getImage());
                     }
 
                     manager.addTweet(username, tweet.getContent(), imgLocation);

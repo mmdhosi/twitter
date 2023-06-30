@@ -174,6 +174,7 @@ public class TweetCell extends ListCell<Tweet> {
 
     }
 
+    //TODO: bigger space for bigger numbers
     private static void setRepliesButton(Stage currentStage, Tweet tweet, Button repliesButton, Requester requester) {
         repliesButton.setText("💬" + tweet.getReplyCount());
         repliesButton.setPrefWidth(40);

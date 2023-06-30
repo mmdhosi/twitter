@@ -5,10 +5,12 @@ import com.mytwitter.server.contexthandlers.LoginHandler;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
+import com.mytwitter.util.ImageBase64;
 import com.mytwitter.util.OutputType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -225,16 +227,43 @@ public class Database {
     }
     public OutputType editProfile(UserProfile userProfile){
         if(userProfile.getHeader()!=null){
-            addHeader(userProfile.getHeader(),userProfile.getUser().getUserName());
+            String headerLocation = ImageBase64.downloadImage("avatars", userProfile.getHeader());
+            addHeader(headerLocation,userProfile.getUser().getUserName());
         }
         if(userProfile.getAvatar()!=null){
-            addAvatar(userProfile.getAvatar(),userProfile.getUser().getUserName());
+            String avatarLocation = ImageBase64.downloadImage("avatars", userProfile.getAvatar());
+            addAvatar(avatarLocation,userProfile.getUser().getUserName());
         }
         if ((userProfile.getBio()!=null)){
-            addBio(userProfile.getUser().getUserName(),userProfile.getBio());
+            editBio(userProfile.getUser().getUserName(),userProfile.getBio());
         }
         return OutputType.SUCCESS;
     }
+
+    private void editBio(String userName, Bio bio) {
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT id FROM twitter.bio WHERE username=?");
+            statement.setString(1, userName);
+            ResultSet result = statement.executeQuery();
+            result.next();
+            if(result.next()){
+                addBio(userName, bio);
+            } else {
+                statement = con.prepareStatement("UPDATE twitter.bio SET location = ?, web_adress = ?, text = ? WHERE username = ?");
+                statement.setString(1, bio.getLocation());
+                statement.setString(2, bio.getWebAddress());
+                statement.setString(3, bio.getText());
+                statement.setString(4, userName);
+                statement.executeUpdate();
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public  String calculateTweetDate(Date tweetDate) {
         String out;
             Instant instant = tweetDate.toInstant();
@@ -403,7 +432,7 @@ public class Database {
         return users;
 
     }
-    public Blob getAvatar(String username){
+    public String getAvatar(String username){
         try {
             PreparedStatement statement = con.prepareStatement("SELECT avatar\n" +
                     "FROM twitter.users WHERE username= ? ");
@@ -411,13 +440,15 @@ public class Database {
             statement.setString(1,username);
             ResultSet result = statement.executeQuery();
             result.next();
-            return result.getBlob(1);
-        } catch (SQLException e) {
+            String imgLocation = result.getString(1);
+            return ImageBase64.getImageFromLocation(imgLocation);
+
+        } catch (SQLException | FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
     }
-    public Blob getHeader(String username){
+    public String getHeader(String username){
         try {
             PreparedStatement statement = con.prepareStatement("SELECT header\n" +
                     "FROM twitter.users WHERE username= ? ");
@@ -425,8 +456,9 @@ public class Database {
             statement.setString(1,username);
             ResultSet result = statement.executeQuery();
             result.next();
-            return result.getBlob(1);
-        } catch (SQLException e) {
+            String imgLocation = result.getString(1);
+            return ImageBase64.getImageFromLocation(imgLocation);
+        } catch (SQLException | FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
