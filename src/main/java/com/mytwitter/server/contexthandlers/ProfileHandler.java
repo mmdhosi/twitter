@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class ProfileHandler implements HttpHandler {
@@ -27,47 +28,51 @@ public class ProfileHandler implements HttpHandler {
             String requestUri = exchange.getRequestURI().toString();
             String[] segments = requestUri.split("/");
             String usernameToView = segments[2];
-//            String usernameToRequest = segments[3];
+
             UserProfile userProfile = new UserProfile();
-            User user = databaseManager.getUser(usernameToView);
+            if(segments.length == 3) {
+                User user = databaseManager.getUser(usernameToView);
+                if (user != null) {
+                    ArrayList<User> followers = databaseManager.getFollowers(usernameToView);
+                    ArrayList<User> followings = databaseManager.getFollowings(usernameToView);
+                    ArrayList<UserProfile> followersProfile = new ArrayList<>();
+                    ArrayList<UserProfile> followingsProfile = new ArrayList<>();
 
-            if(user != null) {
-                ArrayList<User> followers=databaseManager.getFollowers(usernameToView);
-                ArrayList<User> followings=databaseManager.getFollowings(usernameToView);
-                ArrayList<UserProfile> followersProfile = new ArrayList<>();
-                ArrayList<UserProfile> followingsProfile = new ArrayList<>();
+                    for (User u : followers) {
+                        UserProfile followerProfile = new UserProfile();
+                        followerProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
+                        followersProfile.add(followerProfile);
+                    }
+                    for (User u : followings) {
+                        UserProfile followingProfile = new UserProfile();
+                        followingProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
+                        followingsProfile.add(followingProfile);
+                    }
 
-                for (User u:followers) {
-                    UserProfile followerProfile=new UserProfile();
-                    followerProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
-                    followersProfile.add(followerProfile);
+                    userProfile.setUser(user);
+                    userProfile.setAvatar(databaseManager.getAvatar(usernameToView));
+                    userProfile.setHeader(databaseManager.getHeader(usernameToView));
+                    userProfile.setCountFollowers(followers.size());
+                    userProfile.setCountFollowings(followings.size());
+                    userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(usernameToView));
+                    userProfile.setBlocked(databaseManager.checkBlocked(usernameToView, usernameToRequest));
+                    userProfile.setFollowed(databaseManager.checkFollowed(usernameToView, usernameToRequest));
+                    userProfile.setFollowers(followersProfile);
+                    userProfile.setFollowings(followingsProfile);
+                    userProfile.setBio(databaseManager.getBio(usernameToView));
+
+                    exchange.sendResponseHeaders(200, 0);
+                } else {
+                    exchange.sendResponseHeaders(404, 0);
                 }
-                for (User u:followings) {
-                    UserProfile followingProfile=new UserProfile();
-                    followingProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
-                    followingsProfile.add(followingProfile);
-                }
-
-                userProfile.setUser(user);
+            } else if(Objects.equals(segments[3], "avatar")) {
                 userProfile.setAvatar(databaseManager.getAvatar(usernameToView));
-                userProfile.setHeader(databaseManager.getHeader(usernameToView));
-                userProfile.setCountFollowers(followers.size());
-                userProfile.setCountFollowings(followings.size());
-                userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(usernameToView));
-                userProfile.setBlocked(databaseManager.checkBlocked(usernameToView,usernameToRequest));
-                userProfile.setFollowed(databaseManager.checkFollowed(usernameToView,usernameToRequest));
-                userProfile.setFollowers(followersProfile);
-                userProfile.setFollowings(followingsProfile);
-                userProfile.setBio(databaseManager.getBio(usernameToView));
-
-
                 exchange.sendResponseHeaders(200, 0);
-                OutputStream out = exchange.getResponseBody();
-                out.write(gson.toJson(userProfile).getBytes());
-                out.close();
-            } else {
-                exchange.sendResponseHeaders(404, 0);
             }
+            OutputStream out = exchange.getResponseBody();
+            out.write(gson.toJson(userProfile).getBytes());
+            out.close();
+
             exchange.close();
         }
     }

@@ -1,10 +1,13 @@
 package com.mytwitter.server.database;
 
 import com.mytwitter.server.Config;
+import com.mytwitter.server.contexthandlers.LoginHandler;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.OutputType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -14,6 +17,9 @@ public class Database {
     private static Connection con;
     private static Database manager;
     private final static int FAVE_STAR_LIKE_COUNT = 10;
+
+    private static final Logger log = LoggerFactory.getLogger(Database.class);
+
 
     static{
         try {
@@ -49,7 +55,7 @@ public class Database {
         } catch (SQLException e) {
             if(e.getErrorCode() == 1062){
                 String message = e.getMessage();
-                System.out.println(message);
+                log.info(message);
                 if(message.contains("'users.user_name'"))
                     return OutputType.DUPLICATE_USERNAME;
                 else if(message.contains("'users.email_UNIQUE'"))
@@ -182,7 +188,7 @@ public class Database {
             return new Bio(result.getString(1), result.getString(2), result.getString(3));
 
         } catch (SQLException e) {
-            System.out.println("no bio found for user: "+ username);
+            log.info("no bio found for user: "+ username);
             return new Bio();
         }
 
@@ -553,7 +559,6 @@ public class Database {
                 return o1.getTimestamp().compareTo(o2.getTimestamp());
             }
         });
-        System.out.println(tweets);
         return tweets;
     }
 

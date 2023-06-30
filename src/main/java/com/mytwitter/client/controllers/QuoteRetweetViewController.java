@@ -68,8 +68,8 @@ public class QuoteRetweetViewController implements Initializable {
             currentStage.close();
         });
 
-        quoteBox.getChildren().add(TweetCell.createTweet(currentStage, tweet, false));
-        retweetBox.getChildren().add(TweetCell.createTweet(currentStage, tweet, false));
+        quoteBox.getChildren().add(TweetCell.createTweet(currentStage, tweet, false, false));
+        retweetBox.getChildren().add(TweetCell.createTweet(currentStage, tweet, false, false));
 
     }
 }

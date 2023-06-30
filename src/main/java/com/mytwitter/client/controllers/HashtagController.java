@@ -88,7 +88,7 @@ public class HashtagController implements Initializable {
         searchField.setText("#" + hashtag);
 
         homeButton.setOnAction(event -> {
-            new HomeController(currentStage, requester);
+            new HomeController(currentStage);
         });
 
         listView.setStyle("-fx-control-inner-background: #FFFFFF;");

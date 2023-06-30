@@ -145,22 +145,28 @@ public class Requester {
         return null;
     }
 
-    public UserProfile getProfile(String username) {
-        // create a custom gson to be able to separate different subclasses of Tweet
+    public UserProfile getProfile(String request) {
         try {
             HttpRequest GETRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/user/" + username))
+                    .uri(new URI("http://localhost:8000/user/" + request))
                     .GET()
                     .header("authorization", jwt)
                     .build();
 
             HttpResponse<String> GETResponse = httpClient.send(GETRequest, HttpResponse.BodyHandlers.ofString());
-            return ClientGson.getTimelineGson().fromJson(GETResponse.body(), UserProfile.class);
+            return ClientGson.getGson().fromJson(GETResponse.body(), UserProfile.class);
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public String getUserAvatar(String username) {
+        UserProfile userProfile = getProfile(username+"/avatar");
+        if(userProfile!=null)
+            return userProfile.getAvatar();
+        return null;
     }
 
     public OutputType usersOperationRequest(String username, String operation, boolean isDeleteRequest) {

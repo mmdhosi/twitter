@@ -39,7 +39,7 @@ public class TweetCell extends ListCell<Tweet> {
     protected void updateItem(Tweet tweet, boolean empty) {
         super.updateItem(tweet, empty);
         if (!empty && tweet != null) {
-            setGraphic(createTweet(currentStage, tweet, true));
+            setGraphic(createTweet(currentStage, tweet, true, true));
             getStyleClass().add("fx-cell-size: 50px;");
 //                            CardController card = new CardController();
 //                            card.updateDetails(item.getName(), item.getContent());
@@ -96,7 +96,7 @@ public class TweetCell extends ListCell<Tweet> {
         return textFlow;
     }
 
-    public static VBox createTweet(Stage currentStage, Tweet tweet, boolean placeActions){
+    public static VBox createTweet(Stage currentStage, Tweet tweet, boolean placeActions, boolean showSubjectTweet){
         Hyperlink usernameLabel = new Hyperlink();
         Label typeLabel = new Label();
         VBox contentBox = new VBox();
@@ -108,10 +108,8 @@ public class TweetCell extends ListCell<Tweet> {
         HBox actionsBox;
         Requester requester = Requester.getRequester();
 
-        contentText.setStyle("-fx-padding: 3 15 5 15");
         typeLabel.setTextFill(Color.GRAY);
 
-        //TODO: get profile image
 
         setProfile(profileImg, tweet.getUserName());
         setUsername(usernameLabel, tweet, currentStage);
@@ -129,7 +127,7 @@ public class TweetCell extends ListCell<Tweet> {
             actionsBox.setSpacing(20);
 
             contentBox.getChildren().add(typeLabel);
-            contentBox.getChildren().add(createTweet(currentStage, retweet.getRetweetedTweet(), false));
+            contentBox.getChildren().add(createTweet(currentStage, retweet.getRetweetedTweet(), false, true));
 
         } else if (tweet instanceof Quote quote) {
             contentBox.getChildren().add(new HBox(profileImg, usernameLabel));
@@ -145,7 +143,7 @@ public class TweetCell extends ListCell<Tweet> {
 
             contentBox.getChildren().add(typeLabel);
             contentBox.getChildren().add(contentText);
-            contentBox.getChildren().add(createTweet(currentStage, quote.getQuotedTweet(), false));
+            contentBox.getChildren().add(createTweet(currentStage, quote.getQuotedTweet(), false, true));
 
 
         } else if (tweet instanceof Reply reply) {
@@ -155,22 +153,7 @@ public class TweetCell extends ListCell<Tweet> {
             actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
             actionsBox.setSpacing(20);
 
-
-            contentBox.getChildren().add(createTweet(currentStage, reply.getRepliedTo(), true));
-
-            Set<String> replyToUsernames = reply.getRepliedToUsernames();
-            StringBuilder usernames = new StringBuilder();
-            usernames.append("Replying to ");
-            for (String name : replyToUsernames) {
-                usernames.append("@").append(name).append(" ");
-            }
-
-            contentText = parseContent(currentStage, tweet.getContent());
-
-            contentBox.getChildren().add(new HBox(profileImg, usernameLabel));
-            contentBox.getChildren().add(parseContent(currentStage, usernames.toString()));
-            contentBox.getChildren().add(contentText);
-
+            contentBox = createContentBoxReply(new HBox(profileImg, usernameLabel), currentStage, reply, showSubjectTweet);
         } else {
             contentBox.getChildren().add(new HBox(profileImg, usernameLabel));
             setLikeButton(likesButton, tweet, requester);
@@ -194,7 +177,7 @@ public class TweetCell extends ListCell<Tweet> {
         repliesButton.setText("💬" + tweet.getReplyCount());
         repliesButton.setPrefWidth(40);
         repliesButton.setOnAction(event -> {
-            new CommentsViewController(currentStage, requester, tweet);
+            new CommentsViewController(currentStage, tweet);
         });
     }
 
@@ -229,8 +212,7 @@ public class TweetCell extends ListCell<Tweet> {
 
     public static void setProfile(ImageView profileImg, String username) {
         Requester requester = Requester.getRequester();
-        UserProfile userProfile= requester.getProfile(username);
-        String img = userProfile.getAvatar();
+        String img = requester.getUserAvatar(username);
 
         profileImg.setImage(ProfileImage.getAvatarImage(img));
 
@@ -240,4 +222,29 @@ public class TweetCell extends ListCell<Tweet> {
         Circle clip = new Circle(radius / 2, radius / 2, radius / 2);
         profileImg.setClip(clip);
     }
+
+    public static VBox createContentBoxReply(HBox userInfoBox, Stage currentStage, Reply reply, boolean showSubjectTweet){
+        VBox contentBox = new VBox();
+        TextFlow contentText;
+
+        if(showSubjectTweet)
+            contentBox.getChildren().add(createTweet(currentStage, reply.getRepliedTo(), true, true));
+
+        Set<String> replyToUsernames = reply.getRepliedToUsernames();
+        StringBuilder usernames = new StringBuilder();
+        usernames.append("Replying to ");
+        for (String name : replyToUsernames) {
+            usernames.append("@").append(name).append(" ");
+        }
+
+        contentText = parseContent(currentStage, reply.getContent());
+        contentText.setStyle("-fx-padding: 3 15 5 15");
+
+        contentBox.getChildren().add(userInfoBox);
+        contentBox.getChildren().add(parseContent(currentStage, usernames.toString()));
+        contentBox.getChildren().add(contentText);
+
+        return contentBox;
+    }
+
 }

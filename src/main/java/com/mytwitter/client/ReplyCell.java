@@ -12,10 +12,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.Set;
-
-import static com.mytwitter.client.TweetCell.setProfile;
-
 public class ReplyCell extends ListCell<Reply> {
 
     private Stage currentStage;
@@ -40,47 +36,26 @@ public class ReplyCell extends ListCell<Reply> {
     protected void updateItem(Reply reply, boolean empty) {
         super.updateItem(reply, empty);
         if (!empty && reply != null) {
-            //TODO: get profile image
+            setStyle("-fx-border-color: black;");
 
-            setProfile(profileImg, "file:profiles/king.jpg");
-
+            TweetCell.setProfile(profileImg, reply.getUserName());
             TweetCell.setUsername(usernameLabel, reply, currentStage);
 
-            //TODO: show the replied to tweet
-            Set<String> replyToUsernames = reply.getRepliedToUsernames();
-            //TODO: hyperlink for each username
-            String usernames = "";
-            for (String name : replyToUsernames) {
-                usernames += name + " ";
-            }
-            typeLabel.setText("Reply to " + usernames);
-            contentLabel.setText(reply.getContent());
-
-            contentLabel.setStyle("-fx-padding: 3 15 5 15");
-
-
             TweetCell.setLikeButton(likesButton, reply, requester);
+            TweetCell.setRetweetButton(retweetsButton, reply);
+            HBox actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
+            actionsBox.setSpacing(20);
 
+            VBox contentBox = TweetCell.createContentBoxReply(new HBox(profileImg, usernameLabel), currentStage, reply, false);
 
             repliesButton.setText("💬" + reply.getReplyCount());
             repliesButton.setPrefWidth(40);
             repliesButton.setOnAction(event -> {
-                CommentsViewController.createCommentsView(currentStage, requester, reply);
+                CommentsViewController.createCommentsView(currentStage, reply);
             });
 
-            TweetCell.setRetweetButton(retweetsButton, reply);
+            setGraphic(new VBox(contentBox, actionsBox));
 
-
-            HBox hBox = new HBox(likesButton, repliesButton, retweetsButton);
-            hBox.setSpacing(20);
-            setGraphic(new VBox(new HBox(profileImg, usernameLabel), typeLabel, contentLabel, hBox));
-
-            getStyleClass().add("fx-cell-size: 50px;");
-//                            CardController card = new CardController();
-//                            card.updateDetails(item.getName(), item.getContent());
-//                            setGraphic(card.getRootVBox());
-//
-            setStyle("-fx-border-color: black;");
         } else {
             setGraphic(null);
         }

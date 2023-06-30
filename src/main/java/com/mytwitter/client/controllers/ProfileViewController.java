@@ -169,7 +169,7 @@ public class ProfileViewController implements Initializable {
     @FXML
     public void clickOnHomeButton(ActionEvent event) {
         currentStage.hide();
-        new HomeController(currentStage, requester);
+        new HomeController(currentStage);
     }
 
     private void setAvatar(String image){

@@ -40,7 +40,7 @@ import java.util.Set;
 public class HomeController implements Initializable {
 
     private Stage currentStage;
-    private Requester requester;
+    private Requester requester = Requester.getRequester();
 
     @FXML
     private ListView<Tweet> cardsListView;
@@ -68,9 +68,8 @@ public class HomeController implements Initializable {
     ObservableList<Tweet> items = FXCollections.observableArrayList();
 
 
-    public HomeController(Stage currentStage, Requester requester) {
+    public HomeController(Stage currentStage) {
         this.currentStage = currentStage;
-        this.requester = requester;
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home-view.fxml"));
@@ -92,7 +91,7 @@ public class HomeController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTweetButtonFeatures(60);
         String currentUsername = Requester.getUsername();
-        profileImageView.setImage(ProfileImage.getAvatarImage(requester.getProfile(currentUsername).getAvatar()));
+        profileImageView.setImage(ProfileImage.getAvatarImage(requester.getUserAvatar(currentUsername)));
 
         profileButton.setOnAction(event -> new ProfileViewController(currentStage, currentUsername));
         logoutButton.setOnAction(event -> new WelcomeViewController(currentStage));
