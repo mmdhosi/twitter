@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class User implements Serializable {
 
-    private String userName, firstName,lastName,email,phoneNumber,password,country, birthdate;
+    private String userName, firstName,lastName,email,phoneNumber,password,country, birthdate, joinDate;
 
     public User(String username, String password){
         this.userName = username;
@@ -20,6 +20,10 @@ public class User implements Serializable {
         this.password = password;
         this.country = country;
         this.birthdate = birthdate;
+    }
+
+    public String getFullName(){
+        return this.firstName + " " + this.lastName;
     }
 
     public void setUserName(String userName) {
@@ -93,5 +97,13 @@ public class User implements Serializable {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 '}';
+    }
+
+    public String getJoinDate() {
+        return joinDate;
+    }
+
+    public void setJoinDate(String joinDate) {
+        this.joinDate = joinDate;
     }
 }

@@ -1,12 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mytwitter.client.controllers.ProfileController">
+<AnchorPane prefHeight="711.0" prefWidth="685.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label layoutX="272.0" layoutY="167.0" text="hi" />
-      <Button fx:id="followButton" layoutX="97.0" layoutY="76.0" mnemonicParsing="false" onAction="#clickOnFollowOrUnFollow" text="unfollow" />
+      <ImageView fx:id="headerImageView" fitHeight="200.0" fitWidth="600.0" layoutX="97.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+      <ImageView fx:id="avatarImageView" fitHeight="100.0" fitWidth="100.0" layoutX="97.0" layoutY="141.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="150.0" />
+      <HBox fx:id="actionBox" spacing="20.0" AnchorPane.leftAnchor="530.0" AnchorPane.topAnchor="220.0">
+         <children>
+            <Button fx:id="blockButton" mnemonicParsing="false" text="Block">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <Button fx:id="followButton" mnemonicParsing="false" onAction="#clickOnFollowOrUnFollow" text="Follow">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+         </children>
+      </HBox>
+      <VBox AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="260.0">
+         <children>
+            <Label fx:id="fullnameLabel" text="Ali Hasanyazdi">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="usernameLabel" text="\@vexplitz" textFill="#807b7b">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <Text fx:id="bioText" strokeType="OUTSIDE" strokeWidth="0.0" text="Hi I am ali this is a bio I am testing something is happening haha coding now coninue to next line this is that" wrappingWidth="407.302734375" />
+            <HBox spacing="30.0">
+               <children>
+                  <HBox>
+                     <children>
+                        <Label text="📆 Joinded at " />
+                        <Label fx:id="joindate" text="September 4 2020" />
+                     </children>
+                  </HBox>
+                  <HBox fx:id="birthdateBox">
+                     <children>
+                        <Label text="🎂 Born at " />
+                        <Label fx:id="birthdate" text="June 1 2004" />
+                     </children>
+                  </HBox>
+               </children>
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <HBox fx:id="webAddressBox" alignment="CENTER_LEFT">
+                     <children>
+                        <Label text="🌐 Web Address: " />
+                        <Hyperlink fx:id="webAddressLink" text="www.ali.com" />
+                     </children>
+                  </HBox>
+                  <Label fx:id="countryLabel" text="Iran" textFill="#9e9e9e" />
+               </children>
+            </HBox>
+            <HBox spacing="10.0">
+               <children>
+                  <Hyperlink fx:id="followersLink" text="200M Followers " />
+                  <Hyperlink fx:id="followingLink" text="6 Following" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+      <Button fx:id="homeButton" layoutX="34.0" layoutY="39.0" mnemonicParsing="false" text="Home" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
+      <Label layoutX="80.0" layoutY="399.0" text="Tweets" AnchorPane.leftAnchor="80.0" AnchorPane.topAnchor="400.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <ListView fx:id="tweetList" layoutX="100.0" layoutY="412.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="420.0" />
+      <Button fx:id="editProfileButton" layoutX="400.0" layoutY="220.0" mnemonicParsing="false" text="Edit Profile" AnchorPane.leftAnchor="400.0" AnchorPane.topAnchor="220.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

@@ -5,7 +5,6 @@ import com.mytwitter.client.Requester;
 import com.mytwitter.tweet.Quote;
 import com.mytwitter.tweet.Retweet;
 import com.mytwitter.tweet.Tweet;
-import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,14 +23,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.w3c.dom.events.Event;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.ResourceBundle;
-import java.util.Set;
+
 public class HashtagController implements Initializable{
 
 
@@ -108,7 +105,7 @@ public class HashtagController implements Initializable{
                                             e.printStackTrace();
                                         }
                                         Stage profileStage = new Stage();
-                                        ProfileController controller = profileLoader.getController();
+                                        ProfileViewController controller = profileLoader.getController();
                                         profileStage.setScene(profileScene);
                                         controller.setCurrentStage(profileStage);
                                         profileStage.show();

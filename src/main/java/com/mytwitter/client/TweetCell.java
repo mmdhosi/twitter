@@ -1,20 +1,19 @@
 package com.mytwitter.client;
 
 import com.mytwitter.client.controllers.CommentsViewController;
-import com.mytwitter.client.controllers.ProfileController;
+import com.mytwitter.client.controllers.ProfileViewController;
 import com.mytwitter.tweet.Quote;
 import com.mytwitter.tweet.Reply;
 import com.mytwitter.tweet.Retweet;
 import com.mytwitter.tweet.Tweet;
+import com.mytwitter.user.UserProfile;
+import com.mytwitter.util.ProfileImage;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -24,7 +23,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.Set;
 
 public class TweetCell extends ListCell<Tweet> {
@@ -64,7 +62,7 @@ public class TweetCell extends ListCell<Tweet> {
         return wordEnd;
     }
 
-    private static TextFlow parseContent(String content){
+    private static TextFlow parseContent(Stage currentStage, String content){
         TextFlow textFlow = new TextFlow();
         for (int i = 0; i<content.length(); i++) {
             if(content.charAt(i) == '#'){
@@ -81,7 +79,7 @@ public class TweetCell extends ListCell<Tweet> {
                 int mentionEnd = getExpressionEnd(content, i, ' ', '\n');
                 Hyperlink mention = new Hyperlink(content.substring(i, mentionEnd));
                 mention.setOnAction(event -> {
-
+                    new ProfileViewController(currentStage, mention.getText().substring(1));
                 });
                 textFlow.getChildren().add(mention);
                 i = mentionEnd - 1;
@@ -100,7 +98,7 @@ public class TweetCell extends ListCell<Tweet> {
         Hyperlink usernameLabel = new Hyperlink();
         Label typeLabel = new Label();
         VBox contentBox = new VBox();
-        Label contentLabel = new Label();
+        TextFlow contentText = new TextFlow();
         Button likesButton = new Button();
         Button repliesButton = new Button();
         Button retweetsButton = new Button();
@@ -108,12 +106,12 @@ public class TweetCell extends ListCell<Tweet> {
         HBox actionsBox;
         Requester requester = Requester.getRequester();
 
-        contentLabel.setStyle("-fx-padding: 3 15 5 15");
+        contentText.setStyle("-fx-padding: 3 15 5 15");
         typeLabel.setTextFill(Color.GRAY);
 
         //TODO: get profile image
 
-        setProfile(profileImg, "file:profiles/king.jpg");
+        setProfile(profileImg, tweet.getUserName());
         setUsername(usernameLabel, tweet, currentStage);
 
 
@@ -134,7 +132,7 @@ public class TweetCell extends ListCell<Tweet> {
         } else if (tweet instanceof Quote quote) {
             contentBox.getChildren().add(new HBox(profileImg, usernameLabel));
             typeLabel.setText("Quoted");
-            contentLabel.setText(tweet.getContent());
+            contentText = parseContent(currentStage,tweet.getContent());
 
             setLikeButton(likesButton, tweet, requester);
             setRepliesButton(currentStage, tweet, repliesButton, requester);
@@ -144,7 +142,7 @@ public class TweetCell extends ListCell<Tweet> {
 
 
             contentBox.getChildren().add(typeLabel);
-            contentBox.getChildren().add(contentLabel);
+            contentBox.getChildren().add(contentText);
             contentBox.getChildren().add(createTweet(currentStage, quote.getQuotedTweet(), false));
 
 
@@ -165,11 +163,11 @@ public class TweetCell extends ListCell<Tweet> {
                 usernames.append("@").append(name).append(" ");
             }
 
-            contentLabel.setText(tweet.getContent());
+            contentText = parseContent(currentStage, tweet.getContent());
 
             contentBox.getChildren().add(new HBox(profileImg, usernameLabel));
-            contentBox.getChildren().add(parseContent(usernames.toString()));
-            contentBox.getChildren().add(contentLabel);
+            contentBox.getChildren().add(parseContent(currentStage, usernames.toString()));
+            contentBox.getChildren().add(contentText);
 
         } else {
             contentBox.getChildren().add(new HBox(profileImg, usernameLabel));
@@ -179,8 +177,8 @@ public class TweetCell extends ListCell<Tweet> {
             actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
             actionsBox.setSpacing(20);
 
-            contentLabel.setText(tweet.getContent());
-            contentBox.getChildren().add(contentLabel);
+            contentText = parseContent(currentStage, tweet.getContent());
+            contentBox.getChildren().add(contentText);
         }
 
         if(placeActions)
@@ -219,14 +217,18 @@ public class TweetCell extends ListCell<Tweet> {
         username.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
-
+                new ProfileViewController(currentStage, tweet.getUserName());
             }
         });
     }
 
-    public static void setProfile(ImageView profileImg, String avatarLocation) {
-        profileImg.setImage(new Image(avatarLocation));
+    public static void setProfile(ImageView profileImg, String username) {
+        Requester requester = Requester.getRequester();
+        UserProfile userProfile= requester.getProfile(username);
+        String img = userProfile.getAvatar();
+
+        profileImg.setImage(ProfileImage.getAvatarImage(img));
+
         float radius = 20;
         profileImg.setFitHeight(radius);
         profileImg.setFitWidth(radius);

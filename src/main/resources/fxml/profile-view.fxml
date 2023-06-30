@@ -12,11 +12,11 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="711.0" prefWidth="685.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mytwitter.client.controllers.ProfileController">
+<AnchorPane prefHeight="711.0" prefWidth="685.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ImageView fx:id="headerImageView" fitHeight="200.0" fitWidth="600.0" layoutX="97.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
       <ImageView fx:id="avatarImageView" fitHeight="100.0" fitWidth="100.0" layoutX="97.0" layoutY="141.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="150.0" />
-      <HBox spacing="20.0" AnchorPane.leftAnchor="530.0" AnchorPane.topAnchor="220.0">
+      <HBox fx:id="actionBox" spacing="20.0" AnchorPane.leftAnchor="530.0" AnchorPane.topAnchor="220.0">
          <children>
             <Button fx:id="blockButton" mnemonicParsing="false" text="Block">
                <font>
@@ -62,10 +62,15 @@
                   <Insets top="5.0" />
                </VBox.margin>
             </HBox>
-            <HBox fx:id="webAddressBox" alignment="CENTER_LEFT">
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
                <children>
-                  <Label text="🌐 Web Address: " />
-                  <Hyperlink fx:id="webAddressLink" text="www.ali.com" />
+                  <HBox fx:id="webAddressBox" alignment="CENTER_LEFT">
+                     <children>
+                        <Label text="🌐 Web Address: " />
+                        <Hyperlink fx:id="webAddressLink" text="www.ali.com" />
+                     </children>
+                  </HBox>
+                  <Label fx:id="countryLabel" text="Iran" textFill="#9e9e9e" />
                </children>
             </HBox>
             <HBox spacing="10.0">
@@ -87,5 +92,10 @@
          </font>
       </Label>
       <ListView fx:id="tweetList" layoutX="100.0" layoutY="412.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="420.0" />
+      <Button fx:id="editProfileButton" layoutX="400.0" layoutY="220.0" mnemonicParsing="false" text="Edit Profile" AnchorPane.leftAnchor="400.0" AnchorPane.topAnchor="220.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

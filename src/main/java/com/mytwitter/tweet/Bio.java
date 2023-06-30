@@ -11,6 +11,7 @@ public class Bio {
         this.location = location;
         this.webAddress = webAddress;
     }
+    public Bio(){}
 
     public String getText() {
         return text;

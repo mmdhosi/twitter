@@ -18,4 +18,5 @@ public class ImageBase64 {
     public static InputStream convertToStream(String image){
         return new ByteArrayInputStream(Base64.getDecoder().decode(image));
     }
+
 }

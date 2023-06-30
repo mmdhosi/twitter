@@ -34,17 +34,18 @@ public class ProfileHandler implements HttpHandler {
             if(user != null) {
                 ArrayList<User> followers=databaseManager.getFollowers(usernameToView);
                 ArrayList<User> followings=databaseManager.getFollowings(usernameToView);
-                ArrayList<UserProfile> followersProfile = null;
-                ArrayList<UserProfile> followingsProfile = null;
+                ArrayList<UserProfile> followersProfile = new ArrayList<>();
+                ArrayList<UserProfile> followingsProfile = new ArrayList<>();
+
                 for (User u:followers) {
-                    UserProfile userProfile1=new UserProfile();
-                    userProfile1.setAvatar(databaseManager.getAvatar(u.getUserName()));
-                    followersProfile.add(userProfile1);
+                    UserProfile followerProfile=new UserProfile();
+                    followerProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
+                    followersProfile.add(followerProfile);
                 }
                 for (User u:followings) {
-                    UserProfile userProfile1=new UserProfile();
-                    userProfile1.setAvatar(databaseManager.getAvatar(u.getUserName()));
-                    followingsProfile.add(userProfile1);
+                    UserProfile followingProfile=new UserProfile();
+                    followingProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
+                    followingsProfile.add(followingProfile);
                 }
 
                 userProfile.setUser(user);
@@ -57,9 +58,10 @@ public class ProfileHandler implements HttpHandler {
                 userProfile.setFollowed(databaseManager.checkFollowed(usernameToView,usernameToRequest));
                 userProfile.setFollowers(followersProfile);
                 userProfile.setFollowings(followingsProfile);
+                userProfile.setBio(databaseManager.getBio(usernameToView));
 
 
-                exchange.sendResponseHeaders(404, 0);
+                exchange.sendResponseHeaders(200, 0);
                 OutputStream out = exchange.getResponseBody();
                 out.write(gson.toJson(userProfile).getBytes());
                 out.close();

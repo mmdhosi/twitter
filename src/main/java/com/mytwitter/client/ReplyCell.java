@@ -1,28 +1,17 @@
 package com.mytwitter.client;
 
 import com.mytwitter.client.controllers.CommentsViewController;
-import com.mytwitter.client.controllers.ProfileController;
-import com.mytwitter.tweet.Quote;
 import com.mytwitter.tweet.Reply;
-import com.mytwitter.tweet.Retweet;
-import com.mytwitter.tweet.Tweet;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.Set;
 
 import static com.mytwitter.client.TweetCell.setProfile;

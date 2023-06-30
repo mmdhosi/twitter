@@ -27,6 +27,7 @@ public class Requester {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final Gson gson = ClientGson.getGson();
     private static Requester requester;
+    private static String username;
 
     public static Requester getRequester(){
         return requester;
@@ -80,7 +81,16 @@ public class Requester {
             return null;
         }
         requester = new Requester(jwt);
+        setUsername(username);
         return requester;
+    }
+
+    public static String getUsername() {
+        return username;
+    }
+
+    public static void setUsername(String username) {
+        Requester.username = username;
     }
 
     private Requester(String jwt) {
