@@ -86,9 +86,10 @@ public class CommentsViewController {
         newCommentField.setOnKeyPressed(keyEvent -> {
             if(keyEvent.getCode().equals(KeyCode.ENTER)){
                 TextField textField = (TextField) keyEvent.getSource();
-                textField.setText("");
                 requester.comment(newCommentField.getText(), subjectTweet.getTweetId());
                 repliesList.setAll(requester.getReplies(subjectTweet.getTweetId()));
+                textField.setText("");
+
             }
         });
 

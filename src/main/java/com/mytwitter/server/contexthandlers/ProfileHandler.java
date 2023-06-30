@@ -56,7 +56,7 @@ public class ProfileHandler implements HttpHandler {
                     userProfile.setCountFollowers(followers.size());
                     userProfile.setCountFollowings(followings.size());
                     userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(usernameToView));
-                    if (usernameToView != usernameToRequest) {
+                    if (!usernameToView.equals(usernameToRequest)) {
                         userProfile.setBlocked(databaseManager.checkBlocked(usernameToView, usernameToRequest));
                         userProfile.setFollowed(databaseManager.checkFollowed(usernameToView, usernameToRequest));
                     }
@@ -69,7 +69,11 @@ public class ProfileHandler implements HttpHandler {
                     exchange.sendResponseHeaders(404, 0);
                 }
             } else if (Objects.equals(segments[3], "avatar")) {
-                userProfile.setAvatar(databaseManager.getAvatar(usernameToView));
+                try {
+                    userProfile.setAvatar(databaseManager.getAvatar(usernameToView));
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 exchange.sendResponseHeaders(200, 0);
             }
             OutputStream out = exchange.getResponseBody();

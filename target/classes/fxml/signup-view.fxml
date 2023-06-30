@@ -82,7 +82,7 @@
          <HBox layoutX="10.0" layoutY="353.0" prefHeight="100.0">
             <children>
                <Label prefWidth="90.0" text="Country :" />
-            <ChoiceBox fx:id="countryChoice" onMouseClicked="#clickOnCountryChoice" prefWidth="150.0" />
+            <ChoiceBox fx:id="countryChoice" prefWidth="150.0" />
             </children>
          </HBox>
          <HBox layoutX="10.0" layoutY="360.0" prefHeight="100.0">
