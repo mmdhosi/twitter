@@ -23,7 +23,6 @@ public class ProfileHandler implements HttpHandler {
         Gson gson = ServerGson.getGson();
         if(exchange.getRequestMethod().equals("GET")){
             InputStream in = exchange.getRequestBody();
-
             String requestUri = exchange.getRequestURI().toString();
             String[] segments = requestUri.split("/");
             String usernameToView = segments[2];
@@ -53,8 +52,10 @@ public class ProfileHandler implements HttpHandler {
                 userProfile.setCountFollowers(followers.size());
                 userProfile.setCountFollowings(followings.size());
                 userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(usernameToView));
-                userProfile.setBlocked(databaseManager.checkBlocked(usernameToView,usernameToRequest));
-                userProfile.setFollowed(databaseManager.checkFollowed(usernameToView,usernameToRequest));
+                if(usernameToView!=usernameToRequest) {
+                    userProfile.setBlocked(databaseManager.checkBlocked(usernameToView, usernameToRequest));
+                    userProfile.setFollowed(databaseManager.checkFollowed(usernameToView, usernameToRequest));
+                }
                 userProfile.setFollowers(followersProfile);
                 userProfile.setFollowings(followingsProfile);
 

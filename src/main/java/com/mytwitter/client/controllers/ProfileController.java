@@ -22,6 +22,8 @@ public class ProfileController {
     private Button followButton;
     @FXML
     private Button blockButton;
+    @FXML
+    private Button editButton;
 
     private Stage currentStage;
     private Requester requester;
@@ -90,4 +92,25 @@ public class ProfileController {
             followButton.setText("follow");
         }
     }
+    public void clickOnEditProfile(javafx.event.ActionEvent event){
+        currentStage.hide();
+
+        Scene editScene = null;
+        FXMLLoader editLoader = null;
+        try {
+            editLoader = new FXMLLoader(getClass().getResource("/fxml/edit-view.fxml"));
+            editScene = new Scene(editLoader.load());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage editStage = new Stage();
+        EditViewController controller = editLoader.getController();
+        editStage.setScene(editScene);
+        controller.setCurrentStage(editStage);
+        controller.setRequester(requester);
+        editStage.show();
+
+    }
+
 }

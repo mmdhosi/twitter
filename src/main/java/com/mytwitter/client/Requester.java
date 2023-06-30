@@ -114,6 +114,7 @@ public class Requester {
         return null;
     }
 
+
     public List<Reply> getReplies(int tweetId){
         try {
             HttpRequest GETRequest = HttpRequest.newBuilder()
@@ -312,7 +313,7 @@ public class Requester {
             return null;
         }
     }
-    public ArrayList<UserProfile> hastag(String keyword){
+    public ArrayList<UserProfile> hashtag(String keyword){
         try {
             HttpRequest searchRequest = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8000/hashtag/"+keyword))
@@ -328,4 +329,28 @@ public class Requester {
             return null;
         }
     }
+    public  OutputType editProfile(UserProfile userProfile){
+        String jsonRequest = gson.toJson(userProfile);
+
+        try {
+            HttpRequest editRequest = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/edit"))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
+                    .header("authorization",jwt)
+                    .build();
+            HttpResponse<String> GETResponse = httpClient.send(editRequest, HttpResponse.BodyHandlers.ofString());
+            // TODO: check response codes (duplicates)
+            if(GETResponse.statusCode()==200) {
+                return OutputType.SUCCESS;
+            }
+
+
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return OutputType.INVALID;
+    }
+
+
+
 }

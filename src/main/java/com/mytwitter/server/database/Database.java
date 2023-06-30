@@ -7,8 +7,12 @@ import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.OutputType;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Date;
 
 public class Database {
     private static Connection con;
@@ -195,6 +199,44 @@ public class Database {
 
         return OutputType.SUCCESS;
     }
+    public OutputType editProfile(UserProfile userProfile){
+        if(userProfile.getHeader()!=null){
+            addHeader(userProfile.getHeader(),userProfile.getUser().getUserName());
+        }
+        if(userProfile.getAvatar()!=null){
+            addAvatar(userProfile.getAvatar(),userProfile.getUser().getUserName());
+        }
+        if ((userProfile.getBio()!=null)){
+            addBio(userProfile.getUser().getUserName(),userProfile.getBio());
+        }
+        return OutputType.SUCCESS;
+    }
+    public  String calculateTweetDate(Date tweetDate) {
+        String out;
+            Instant instant = tweetDate.toInstant();
+            Instant now = Instant.now();
+            Duration duration = Duration.between(instant, now);
+            long days = duration.toDays();
+            long hours = duration.toHours() % 24;
+            long minutes = duration.toMinutes() % 60;
+        System.out.println(now);
+        if(days==0){
+            if(hours==0){
+                out=minutes+"m ago";
+            }else {
+              out=hours+"h ago";
+            }
+        }else {
+            long millis = duration.toMillis();
+            Date result = new Date(millis);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
+            String beautifulDate = dateFormat.format(result);
+            out=beautifulDate;
+        }
+
+        return out;
+    }
+
 
     private int getUserId(String username){
         try {
