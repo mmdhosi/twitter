@@ -1,7 +1,9 @@
 package com.mytwitter.client;
 
 import com.mytwitter.client.controllers.CommentsViewController;
+import com.mytwitter.client.controllers.HashtagController;
 import com.mytwitter.client.controllers.ProfileViewController;
+import com.mytwitter.client.controllers.QuoteRetweetViewController;
 import com.mytwitter.tweet.Quote;
 import com.mytwitter.tweet.Reply;
 import com.mytwitter.tweet.Retweet;
@@ -70,7 +72,7 @@ public class TweetCell extends ListCell<Tweet> {
 
                 Hyperlink hashtag = new Hyperlink(content.substring(i, hashtagEnd));
                 hashtag.setOnAction(event -> {
-                    //TODO: open hashtag profile
+                    new HashtagController(currentStage, hashtag.getText().substring(1));
                 });
                 textFlow.getChildren().add(hashtag);
                 i = hashtagEnd - 1;
@@ -199,6 +201,9 @@ public class TweetCell extends ListCell<Tweet> {
     public static void setRetweetButton(Button retweetsButton, Tweet tweet) {
         retweetsButton.setText("\uD83D\uDD01" + tweet.getRetweetCount());
         retweetsButton.setPrefWidth(40);
+        retweetsButton.setOnAction(event -> {
+            new QuoteRetweetViewController(tweet);
+        });
     }
 
     public static void setLikeButton(Button likesButton, Tweet tweet, Requester requester) {

@@ -2,6 +2,7 @@ package com.mytwitter.client.controllers;
 
 
 import com.mytwitter.client.Requester;
+import com.mytwitter.client.TweetCell;
 import com.mytwitter.tweet.Quote;
 import com.mytwitter.tweet.Retweet;
 import com.mytwitter.tweet.Tweet;
@@ -29,156 +30,97 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-public class HashtagController implements Initializable{
+public class HashtagController implements Initializable {
 
 
-        private Stage currentStage;
-        private Requester requester;
+    private Stage currentStage;
+    private Requester requester = Requester.getRequester();
 
-        @FXML
-        private ListView<Tweet> cardsListView;
+    @FXML
+    private ListView<Tweet> listView;
 
-        @FXML
-        private TextField searchField;
+    @FXML
+    private TextField searchField;
 
-        @FXML
-        private Button searchButton;
+    @FXML
+    private Button searchButton;
 
-        @FXML
-        private BorderPane rootPaneV;
-        ObservableList<Tweet> items = FXCollections.observableArrayList();;
-        @Override
-        public void initialize(URL url, ResourceBundle resourceBundle) {
+    @FXML
+    private Button homeButton;
 
-            // set button image
-            Image image = new Image("file:icons/magnifier.jpg");
-            ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(20);
-            imageView.setFitWidth(20);
+    ObservableList<Tweet> items = FXCollections.observableArrayList();
 
-            searchButton.setGraphic(imageView);
+    String hashtag;
 
 
-            cardsListView.setStyle("-fx-control-inner-background: #FFFFFF;");
+    public HashtagController(Stage currentStage, String hashtag) {
+        this.hashtag = hashtag;
+        this.currentStage = currentStage;
 
-            cardsListView.setCellFactory(new Callback<ListView<Tweet>, ListCell<Tweet>>() {
-                @Override
-                public ListCell<Tweet> call(ListView<Tweet> cardModelListView) {
-//                return new ListViewCell();
-                    return new ListCell<Tweet>() {
-                        private Button usernameLabel = new Button();
-                        private Label typeLabel = new Label();
-                        private Label contentLabel = new Label();
-                        private Button likesButton = new Button();
-                        private Button repliesButton = new Button();
-                        private Button retweetsButton = new Button();
-                        private ImageView profileImg = new ImageView();
+        Scene scene = null;
+        FXMLLoader loader = null;
+        try {
+            loader = new FXMLLoader(getClass().getResource("/fxml/hashtag-view.fxml"));
+            loader.setController(this);
+            scene = new Scene(loader.load());
 
-                        @Override
-                        protected void updateItem(Tweet tweet, boolean empty) {
-                            super.updateItem(tweet, empty);
-                            if (!empty && tweet != null) {
-                                //TODO: get profile image
-
-                                profileImg.setImage(new Image("file:profiles/king.jpg"));
-                                float radius = 20;
-                                profileImg.setFitHeight(radius);
-                                profileImg.setFitWidth(radius);
-                                Circle clip = new Circle(radius/2,radius/2,radius/2);
-                                profileImg.setClip(clip);
-
-                                usernameLabel.setText(tweet.getUserName());
-                                usernameLabel.setStyle("-fx-padding: 3");
-                                usernameLabel.setOnAction(new EventHandler<ActionEvent>() {
-                                    @Override
-                                    public void handle(ActionEvent event) {
-                                        currentStage.hide();
-
-
-                                        Scene profileScene = null;
-                                        FXMLLoader profileLoader = null;
-                                        try {
-                                            profileLoader = new FXMLLoader(getClass().getResource("/fxml/profile-view.fxml"));
-                                            profileScene = new Scene(profileLoader.load());
-
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                        Stage profileStage = new Stage();
-                                        ProfileViewController controller = profileLoader.getController();
-                                        profileStage.setScene(profileScene);
-                                        controller.setCurrentStage(profileStage);
-                                        profileStage.show();
-
-                                    }
-                                });
-                                if(tweet instanceof Retweet){
-                                    Retweet retweet=(Retweet) tweet;
-                                    typeLabel.setText("retweet");
-                                    contentLabel.setText(retweet.getRetweetedTweet().getContent());
-                                    contentLabel.setStyle("-fx-padding: 3 15 5 15");
-                                }else if (tweet instanceof Quote){
-                                    Quote quote=(Quote)tweet;
-//                                typeLabel.setText("quote");
-                                    contentLabel.setText(tweet.getContent()+"\n"+"quote"+"\n"+quote.getQuotedTweet().getContent());
-                                    contentLabel.setStyle("-fx-padding: 3 15 5 15");
-                                }else {
-                                    contentLabel.setText(tweet.getContent());
-                                    contentLabel.setStyle("-fx-padding: 3 15 5 15");
-                                }
-
-                                likesButton.setText("♡"+tweet.getLikeCount());
-                                likesButton.setPrefWidth(40);
-                                likesButton.setOnAction(new EventHandler<ActionEvent>() {
-                                    @Override
-                                    public void handle(ActionEvent event) {
-                                        //TODO: in mysql send the liked or not liked timeline
-//                                    requester.like(tweet.getTweetId());
-                                    }
-                                });
-
-
-                                repliesButton.setText("💬"+tweet.getReplyCount());
-                                repliesButton.setPrefWidth(40);
-
-                                retweetsButton.setText("\uD83D\uDD01"+tweet.getRetweetCount());
-                                retweetsButton.setPrefWidth(40);
-
-
-                                HBox hBox = new HBox(likesButton, repliesButton, retweetsButton);
-                                hBox.setSpacing(20);
-                                setGraphic(new VBox(new HBox(profileImg, usernameLabel),typeLabel, contentLabel, hBox));
-
-                                getStyleClass().add("fx-cell-size: 50px;");
-//                            CardController card = new CardController();
-//                            card.updateDetails(item.getName(), item.getContent());
-//                            setGraphic(card.getRootVBox());
-//
-//                            setStyle("-fx-border-color: black;");
-                            } else {
-                                setGraphic(null);
-                            }
-                        }
-                    };
-                }
-            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        currentStage.setScene(scene);
+        currentStage.show();
+    }
 
-        @FXML
-        public void searchAction(ActionEvent event){
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
 
-            String keyword = searchField.getText();
-            ArrayList<UserProfile> searchedUsers = requester.search(keyword);
-            new SearchListController(currentStage, searchedUsers);
-        }
+        // set listview items
+        listView.setItems(items);
 
-        public void setCurrentStage(Stage currentStage) {
-            this.currentStage = currentStage;
-        }
+        // set search button image
+        Image image = new Image("file:icons/magnifier.jpg");
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(20);
+        imageView.setFitWidth(20);
+        searchButton.setGraphic(imageView);
 
-        public void setRequester(Requester requester) {
-            this.requester = requester;
-            items.setAll(requester.getTimeline());
-            cardsListView.setItems(items);
-        }
+        // set hashtag name in search box
+        searchField.setText("#" + hashtag);
+
+        homeButton.setOnAction(event -> {
+            new HomeController(currentStage, requester);
+        });
+
+        listView.setStyle("-fx-control-inner-background: #FFFFFF;");
+        listView.setCellFactory(new Callback<ListView<Tweet>, ListCell<Tweet>>() {
+            @Override
+            public ListCell<Tweet> call(ListView<Tweet> tweetListView) {
+                return new TweetCell(currentStage, requester);
+            }
+        });
+
+        // set listview items
+        ArrayList<Tweet> hashtagTweets = requester.getHashtagTweets(hashtag);
+        if(hashtagTweets != null)
+            items.setAll(hashtagTweets);
+
+    }
+
+    @FXML
+    public void searchAction(ActionEvent event) {
+
+        String keyword = searchField.getText();
+        ArrayList<UserProfile> searchedUsers = requester.search(keyword);
+        new SearchListController(currentStage, searchedUsers);
+    }
+
+    public void setCurrentStage(Stage currentStage) {
+        this.currentStage = currentStage;
+    }
+
+    public void setRequester(Requester requester) {
+        this.requester = requester;
+        items.setAll(requester.getTimeline());
+        listView.setItems(items);
+    }
 }
