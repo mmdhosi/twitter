@@ -5,8 +5,11 @@ import com.mytwitter.server.contexthandlers.LoginHandler;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
+import com.mytwitter.util.Direct;
 import com.mytwitter.util.ImageBase64;
+import com.mytwitter.util.Message;
 import com.mytwitter.util.OutputType;
+import javafx.scene.shape.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,6 +102,93 @@ public class Database {
             e.printStackTrace();
         }
         return null;
+    }
+    public OutputType addMessage(String sender,String receiver,String content){
+        Timestamp registerDate = Timestamp.valueOf(LocalDateTime.now());
+        try {
+            PreparedStatement statement = con.prepareStatement("INSERT INTO twitter.direct VALUES(DEFAULT ,?,?,?,?,?)");
+            statement.setInt(1,getUserId(sender));
+            statement.setInt(2,getUserId(receiver));
+            statement.setString(3,content);
+            statement.setTimestamp(4,registerDate);
+            statement.setBoolean(5,false);
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return OutputType.INVALID;
+        }
+        return OutputType.SUCCESS;
+    }
+
+    public OutputType setSeen(int idMessage){
+        try {
+            PreparedStatement statement = con.prepareStatement("UPDATE twitter.direct SET seen= ? WHERE id=?");
+            statement.setBoolean(1,true );
+            statement.setInt(2, idMessage);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return OutputType.SUCCESS;
+    }
+    public ArrayList<Message> getAllMessage(String usernameToRequest,String usernameToView){
+        ArrayList<Message> messages=new ArrayList<>();
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM twitter.direct WHERE sender=? and receiver=? or sender=? and receiver=?");
+            statement.setInt(1, getUserId(usernameToRequest));
+            statement.setInt(2, getUserId(usernameToView));
+            statement.setInt(3, getUserId(usernameToView));
+            statement.setInt(4, getUserId(usernameToRequest));
+
+            ResultSet result = statement.executeQuery();
+            while (result.next()){
+                Message message=new Message(
+                        Objects.requireNonNull(getUserFromId(result.getInt(2))).getUserName(),
+                        Objects.requireNonNull(getUserFromId(result.getInt(3))).getUserName(),
+                        result.getString(4),
+                        result.getTimestamp(5),
+                        result.getBoolean(6)
+                );
+                messages.add(message);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        List<Message> messageList=new ArrayList<>(messages);
+        Collections.sort(messageList, new Comparator<Message>() {
+            @Override
+            public int compare(Message o1, Message o2) {
+                return o1.getSendTime().compareTo(o2.getSendTime());
+            }
+        });
+        return messages;
+    }
+    public ArrayList<Direct> getDirect(String usernameToRequest){
+        ArrayList<Direct> directs=new ArrayList<>();
+
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT DISTINCT sender FROM twitter.direct WHERE receiver=?");
+            statement.setInt(1, getUserId(usernameToRequest));
+            ResultSet result = statement.executeQuery();
+            while (result.next()){
+                System.out.println(result.getInt(1));
+                String sender= Objects.requireNonNull(getUserFromId(result.getInt(1))).getUserName();
+                ArrayList<Message> messages=getAllMessage(usernameToRequest,sender);
+                int i=1;
+                while (Objects.equals(messages.get(messages.size() - i).getSender(), usernameToRequest)){
+                    i++;
+                }
+                Direct direct=new Direct(sender, messages.get(messages.size()-i));
+                directs.add(direct);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return directs;
     }
     public Boolean checkFollowed(String usernameToView,String usernameToRequest){
         ArrayList<User> followings=getFollowings(usernameToRequest);

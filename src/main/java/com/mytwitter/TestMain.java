@@ -1,8 +1,11 @@
 package com.mytwitter;
 
 import com.mytwitter.client.Requester;
+import com.mytwitter.server.database.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 
 public class TestMain {
@@ -11,6 +14,7 @@ public class TestMain {
         if (requester != null) {
             System.out.println(requester.getReplies(28));
         }
+
     }
 
 
