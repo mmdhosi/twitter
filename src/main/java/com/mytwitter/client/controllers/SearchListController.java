@@ -1,5 +1,6 @@
 package com.mytwitter.client.controllers;
 
+import com.mytwitter.client.Requester;
 import com.mytwitter.user.UserProfile;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,6 +31,16 @@ public class SearchListController implements Initializable {
     private Stage stage;
     @FXML
     ArrayList<UserProfile> profiles;
+
+
+    @FXML
+    private Button homeButton;
+
+    @FXML
+    private TextField searchField;
+
+    @FXML
+    private Button searchButton;
 
     public SearchListController(Stage stage, ArrayList<UserProfile> profiles) {
         this.stage = stage;
@@ -62,6 +73,15 @@ public class SearchListController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        searchButton.setOnAction(event -> {
+            new SearchListController(stage, Requester.getRequester().search(searchField.getText()));
+        });
+
+        homeButton.setOnAction(event -> {
+            new HomeController(stage);
+        });
+
         listView.setStyle("-fx-control-inner-background: #FFFFFF;");
 
         ObservableList<UserProfile> observableList = FXCollections.observableArrayList();
