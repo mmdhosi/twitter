@@ -4,20 +4,20 @@ import com.mytwitter.client.controllers.CommentsViewController;
 import com.mytwitter.client.controllers.HashtagController;
 import com.mytwitter.client.controllers.ProfileViewController;
 import com.mytwitter.client.controllers.QuoteRetweetViewController;
+import com.mytwitter.poll.Answer;
+import com.mytwitter.poll.Poll;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.ImageBase64;
 import com.mytwitter.util.ProfileImage;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -25,9 +25,11 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 
@@ -294,6 +296,99 @@ public class TweetCell extends ListCell<Tweet> {
         contentBox.getChildren().add(contentText);
 
         return contentBox;
+    }
+
+    public static VBox createUnansweredPoll(Poll poll){
+        // box design
+        VBox pollBox = createPollQuestion(poll);
+
+        ToggleGroup answersToggleGroup = new ToggleGroup();
+        int i = 1;
+        for (Answer answer : poll.getAnswers()) {
+            RadioButton answerButton = new RadioButton(""+ i++ +". "+ answer.getAnswer());
+
+            answerButton.setToggleGroup(answersToggleGroup);
+            if(i==2)
+                answerButton.setSelected(true);
+
+            pollBox.getChildren().add(answerButton);
+            VBox.setMargin(answerButton, new Insets(5, 0, 0, 10));
+        }
+        Button voteButton = new Button();
+        voteButton.setText("Vote");
+        voteButton.setOnAction(event -> {
+            //TODO: vote
+        });
+
+        HBox voteBox = new HBox(voteButton);
+        voteBox.setAlignment(Pos.BOTTOM_RIGHT);
+        pollBox.getChildren().add(voteBox);
+        return pollBox;
+    }
+
+    public static VBox createPollQuestion(Poll poll){
+        // box design
+        VBox pollBox = new VBox();
+        pollBox.setMaxWidth(300);
+        pollBox.setMaxHeight(120);
+        pollBox.setPadding(new Insets(7));
+        pollBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+        Label questionLabel = new Label(poll.getQuestion());
+        questionLabel.setPrefWidth(300);
+        pollBox.getChildren().add(questionLabel);
+        VBox.setMargin(questionLabel, new Insets(0, 0, 5, 0));
+        return pollBox;
+    }
+
+    public static int sumAllVotes(ArrayList<Answer> answers){
+        int sum = 0;
+        for(Answer a : answers){
+            sum += a.getVotes();
+        }
+        return sum;
+    }
+
+    public static VBox createAnsweredPoll(Poll poll){
+        VBox pollBox = createPollQuestion(poll);
+
+        int sumVotes = sumAllVotes(poll.getAnswers());
+
+        DecimalFormat df = new DecimalFormat("#.#");
+
+        int i = 1;
+
+        for (Answer answer : poll.getAnswers()) {
+
+            Label answerLabel = new Label(""+ i++ + ". "+ answer.getAnswer());
+
+            double percent = (double) answer.getVotes()*100 / sumVotes;
+            Label votePercent = new Label(df.format(percent)+"%");
+
+            Label voteCount = new Label("(" + answer.getVotes()+" votes)");
+            voteCount.setTextFill(Color.GRAY);
+
+            HBox voteBox = new HBox(votePercent, voteCount);
+            voteBox.setSpacing(3);
+
+            AnchorPane answerBox = new AnchorPane(answerLabel, voteBox);
+            if(i == poll.getAnswered_id() + 2)
+                answerBox.setBackground(new Background(new BackgroundFill(Color.LIGHTGREEN, null, null)));
+
+            answerBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+            AnchorPane.setTopAnchor(answerLabel, 4.0);
+            AnchorPane.setBottomAnchor(answerLabel, 4.0);
+            AnchorPane.setLeftAnchor(answerLabel, 10.0);
+
+            AnchorPane.setTopAnchor(voteBox, 4.0);
+            AnchorPane.setBottomAnchor(voteBox, 4.0);
+            AnchorPane.setRightAnchor(voteBox, 10.0);
+
+            pollBox.getChildren().add(answerBox);
+            VBox.setMargin(answerBox, new Insets(5, 0, 0, 10));
+        }
+        return pollBox;
     }
 
 }
