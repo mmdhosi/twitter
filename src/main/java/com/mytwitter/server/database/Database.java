@@ -1,27 +1,21 @@
 package com.mytwitter.server.database;
 
 import com.mytwitter.server.Config;
-import com.mytwitter.server.contexthandlers.LoginHandler;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.User;
 import com.mytwitter.user.UserProfile;
-import com.mytwitter.util.Direct;
+import com.mytwitter.direct.Direct;
 import com.mytwitter.util.ImageBase64;
-import com.mytwitter.util.Message;
+import com.mytwitter.direct.Message;
 import com.mytwitter.util.OutputType;
-import javafx.scene.shape.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.Date;
 
 public class Database {
     private static Connection con;
@@ -133,14 +127,16 @@ public class Database {
 
         return OutputType.SUCCESS;
     }
-    public ArrayList<Message> getAllMessage(String usernameToRequest,String usernameToView){
+
+    public ArrayList<Message> getAllMessage(String username1,String username2){
         ArrayList<Message> messages=new ArrayList<>();
         try {
             PreparedStatement statement = con.prepareStatement("SELECT * FROM twitter.direct WHERE sender=? and receiver=? or sender=? and receiver=?");
-            statement.setInt(1, getUserId(usernameToRequest));
-            statement.setInt(2, getUserId(usernameToView));
-            statement.setInt(3, getUserId(usernameToView));
-            statement.setInt(4, getUserId(usernameToRequest));
+            statement.setInt(1, getUserId(username1));
+            statement.setInt(2, getUserId(username2));
+
+            statement.setInt(3, getUserId(username2));
+            statement.setInt(4, getUserId(username1));
 
             ResultSet result = statement.executeQuery();
             while (result.next()){
@@ -157,8 +153,8 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        List<Message> messageList=new ArrayList<>(messages);
-        Collections.sort(messageList, new Comparator<Message>() {
+
+        messages.sort(new Comparator<Message>() {
             @Override
             public int compare(Message o1, Message o2) {
                 return o1.getSendTime().compareTo(o2.getSendTime());
@@ -166,22 +162,18 @@ public class Database {
         });
         return messages;
     }
-    public ArrayList<Direct> getDirect(String usernameToRequest){
+    public ArrayList<Direct> getDirect(String requesterUsername){
         ArrayList<Direct> directs=new ArrayList<>();
 
         try {
             PreparedStatement statement = con.prepareStatement("SELECT DISTINCT sender FROM twitter.direct WHERE receiver=?");
-            statement.setInt(1, getUserId(usernameToRequest));
+            statement.setInt(1, getUserId(requesterUsername));
             ResultSet result = statement.executeQuery();
             while (result.next()){
-                System.out.println(result.getInt(1));
                 String sender= Objects.requireNonNull(getUserFromId(result.getInt(1))).getUserName();
-                ArrayList<Message> messages=getAllMessage(usernameToRequest,sender);
-                int i=1;
-                while (Objects.equals(messages.get(messages.size() - i).getSender(), usernameToRequest)){
-                    i++;
-                }
-                Direct direct=new Direct(sender, messages.get(messages.size()-i));
+                ArrayList<Message> messages = getAllMessage(requesterUsername,sender);
+
+                Direct direct=new Direct(sender, messages.get(messages.size()-1));
                 directs.add(direct);
             }
 
@@ -190,6 +182,9 @@ public class Database {
         }
         return directs;
     }
+
+
+
     public Boolean checkFollowed(String usernameToView,String usernameToRequest){
         ArrayList<User> followings=getFollowings(usernameToRequest);
         User user=getUser(usernameToView);
@@ -235,8 +230,6 @@ public class Database {
         }
         return null;
     }
-
-    //TODO: add feature for editing bio record
 
     private int createBioRecord(String username, Bio bio){
         try {
@@ -354,9 +347,6 @@ public class Database {
         }
 
     }
-
-
-
 
     private int getUserId(String username){
         try {

@@ -1,4 +1,4 @@
-package com.mytwitter.util;
+package com.mytwitter.direct;
 
 import com.mytwitter.tweet.Tweet;
 

@@ -3,6 +3,8 @@ package com.mytwitter.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mytwitter.direct.Direct;
+import com.mytwitter.direct.Message;
 import com.mytwitter.server.ServerGson;
 import com.mytwitter.tweet.Reply;
 import com.mytwitter.tweet.RequestTweet;
@@ -209,15 +211,6 @@ public class Requester {
     }
 
     private OutputType sendTweetRequest(URI uri, HttpRequest.BodyPublisher bodyPublisher) {
-//        FileInputStream in = null;
-//        String img = "";
-//        try {
-//            in = new FileInputStream("in.jpg");
-//            byte[] bytes = in.readAllBytes();
-//            img = Base64.getEncoder().encodeToString(bytes);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         try {
             HttpRequest tweetRequest = HttpRequest.newBuilder()
@@ -371,5 +364,93 @@ public class Requester {
         }
         return OutputType.INVALID;
     }
+
+    public ArrayList<Direct> getAllDirects(){
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/all"))
+                    .header("authorization", jwt)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if(response.statusCode() == 200){
+                String body = response.body();
+                Type type = new TypeToken<List<Direct>>(){}.getType();
+                return ClientGson.getGson().fromJson(body, type);
+            } else {
+                throw new IOException();
+            }
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public ArrayList<Message> getAllMessages(String directUsername){
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/messages/"+directUsername))
+                    .header("authorization", jwt)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if(response.statusCode() == 200){
+                String body = response.body();
+                Type type = new TypeToken<List<Message>>(){}.getType();
+                return ClientGson.getGson().fromJson(body, type);
+            } else {
+                throw new IOException();
+            }
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public OutputType setSeen(int id){
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/seen/"+id))
+                    .header("authorization", jwt)
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if(response.statusCode() != 200){
+                throw new IOException();
+            }
+            return OutputType.SUCCESS;
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            return OutputType.FAILURE;
+        }
+    }
+
+    public OutputType sendMessage(String receiver, String content){
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/send_message/"+receiver))
+                    .header("authorization", jwt)
+                    .POST(HttpRequest.BodyPublishers.ofString(content))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if(response.statusCode() != 200){
+                throw new IOException();
+            }
+            return OutputType.SUCCESS;
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            return OutputType.FAILURE;
+        }
+    }
+
+
+
+
 
 }

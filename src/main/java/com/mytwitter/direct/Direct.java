@@ -1,4 +1,4 @@
-package com.mytwitter.util;
+package com.mytwitter.direct;
 
 public class Direct {
     private String username;
