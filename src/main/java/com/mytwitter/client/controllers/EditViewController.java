@@ -127,7 +127,8 @@ public class EditViewController implements Initializable {
         countryField.setItems(items);
         countryField.setValue(user.getCountry());
 
-        birthdateField.setValue(LocalDate.parse(user.getBirthdate()));
+        if(user.getBirthdate()!=null)
+            birthdateField.setValue(LocalDate.parse(user.getBirthdate()));
 
         Bio bio = profile.getBio();
         locationField.setText(bio.getLocation());
