@@ -10,13 +10,18 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -31,6 +36,11 @@ public class TweetViewController implements Initializable {
 
     @FXML
     private Button addImageButton;
+    @FXML
+    private Button addPollButton;
+
+    @FXML
+    private VBox pollBox;
 
     @FXML
     private AnchorPane anchorPane;
@@ -51,6 +61,8 @@ public class TweetViewController implements Initializable {
     private VBox imageViewBox;
 
     private File selectedImage = null;
+
+    private int pollOptionsCount = 0;
 
     private final Stage tweetStage;
     private final Requester requester;
@@ -79,8 +91,13 @@ public class TweetViewController implements Initializable {
         tweetStage.hide();
     }
 
+
+
     @FXML
     private void addImageAction(ActionEvent event){
+        addPollButton.setDisable(true);
+        addImageButton.setDisable(true);
+
         FileChooser imageFileChooser = new FileChooser();
         imageFileChooser.setTitle("Choose your image file");
         selectedImage = imageFileChooser.showOpenDialog(null);
@@ -94,6 +111,55 @@ public class TweetViewController implements Initializable {
         }
 
     }
+
+    @FXML
+    private void addPollAction(ActionEvent event){
+        pollBox.setVisible(true);
+        addImageButton.setDisable(true);
+        addPollButton.setDisable(true);
+        AnchorPane.setBottomAnchor(textArea, pollBox.getHeight() + 120);
+
+
+        createNewPollBox();
+    }
+
+    private HBox getNewOptionBox(int i){
+        Label indexLabel = new Label(i+". ");
+        TextField optionField = new TextField();
+        optionField.setPromptText("Enter an option here:");
+        optionField.setFont(new Font(14));
+        optionField.setPrefWidth(300);
+
+        HBox optionBox = new HBox(indexLabel, optionField);
+        optionBox.setAlignment(Pos.CENTER_LEFT);
+        optionBox.setSpacing(4);
+        optionBox.setPadding(new Insets(4));
+        return optionBox;
+    }
+
+    private void createNewPollBox(){
+        TextField questionField = new TextField();
+        questionField.setPromptText("Enter the poll question: ");
+        questionField.setFont(new Font(14));
+
+        pollBox.getChildren().add(questionField);
+
+        VBox.setMargin(questionField, new Insets(5,0,5,0));
+
+        Button addOptionButton = new Button("Add Option");
+        HBox newOptionBox = new HBox(addOptionButton);
+        newOptionBox.setAlignment(Pos.BOTTOM_RIGHT);
+        pollBox.getChildren().add(newOptionBox);
+
+        addOptionButton.setOnAction(event -> {
+            pollBox.getChildren().remove(pollBox.getChildren().size()-1);
+            pollBox.getChildren().add(getNewOptionBox(++pollOptionsCount));
+            if(pollOptionsCount < 6)
+                pollBox.getChildren().add(newOptionBox);
+        });
+    }
+
+
     @FXML
     private void tweetAction(ActionEvent event){
         try {
@@ -117,6 +183,10 @@ public class TweetViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pollBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        pollBox.setPadding(new Insets(10));
+        pollBox.setVisible(false);
+
         // set character limit
         textArea.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if(newValue.length() > MAX_CHARACTERS){
