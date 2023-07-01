@@ -4,6 +4,8 @@ import com.mytwitter.client.Requester;
 import com.mytwitter.tweet.RequestTweet;
 import com.mytwitter.util.ImageBase64;
 import com.mytwitter.util.OutputType;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,6 +55,8 @@ public class TweetViewController implements Initializable {
     private final Stage tweetStage;
     private final Requester requester;
 
+    private final int MAX_CHARACTERS = 280;
+
     public TweetViewController(Requester requester) {
         this.requester = requester;
         tweetStage = new Stage();
@@ -98,6 +102,7 @@ public class TweetViewController implements Initializable {
                 imageBase64 = ImageBase64.convertToBase64(new FileInputStream(selectedImage));
 
             RequestTweet requestTweet = new RequestTweet();
+
             requestTweet.setContent(textArea.getText());
             requestTweet.setImage(imageBase64);
             OutputType result = requester.regularTweet(requestTweet);
@@ -112,6 +117,13 @@ public class TweetViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // set character limit
+        textArea.textProperty().addListener((observableValue, oldValue, newValue) -> {
+            if(newValue.length() > MAX_CHARACTERS){
+                textArea.setText(newValue.substring(0, MAX_CHARACTERS));
+            }
+        });
+
         imageView.setPreserveRatio(true);
     }
 }

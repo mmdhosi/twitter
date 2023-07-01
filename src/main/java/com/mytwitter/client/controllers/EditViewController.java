@@ -77,6 +77,8 @@ public class EditViewController implements Initializable {
     @FXML
     private TextField webAddressField;
 
+    private final int MAX_CHARACTERS = 160;
+
     private Stage currentStage;
     private UserProfile profile;
     private Requester requester = Requester.getRequester();
@@ -105,6 +107,13 @@ public class EditViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // set max characters
+        bioTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > MAX_CHARACTERS) {
+                bioTextArea.setText(newValue.substring(0, MAX_CHARACTERS));
+            }
+        });
+
         User user = profile.getUser();
         usernameField.setText(user.getUserName());
         firstnameField.setText(user.getFirstName());

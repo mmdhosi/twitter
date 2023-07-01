@@ -109,7 +109,6 @@ public class TweetCell extends ListCell<Tweet> {
         long days = duration.toDays();
         long hours = duration.toHours() % 24;
         long minutes = duration.toMinutes() % 60;
-        System.out.println(now);
         if(days==0){
             if(hours==0){
                 out=minutes+"m ago";
