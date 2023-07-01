@@ -1,5 +1,7 @@
 package com.mytwitter.server.database;
 
+import com.mytwitter.poll.Answer;
+import com.mytwitter.poll.Poll;
 import com.mytwitter.server.Config;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.User;
@@ -183,6 +185,115 @@ public class Database {
         }
         return directs;
     }
+    public OutputType addPoll(Poll poll){
+        int questionId = 0;
+
+        try {
+            PreparedStatement statement = con.prepareStatement("INSERT INTO twitter.poll_questions VALUES(DEFAULT ,?)", Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1,poll.getQuestion());
+            statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                questionId = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return OutputType.INVALID;
+        }
+        for (Answer a:poll.getAnswers()) {
+            try {
+                PreparedStatement statement = con.prepareStatement("INSERT INTO twitter.poll_answers VALUES(DEFAULT ,?,?,?)");
+                statement.setInt(1,questionId);
+                statement.setString(2,a.getAnswer());
+                statement.setInt(3,0);
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return OutputType.INVALID;
+            }
+        }
+        return OutputType.SUCCESS;
+    }
+    public Poll getPoll(int id){
+        Poll poll=new Poll();
+        try {
+            PreparedStatement statement = con.prepareStatement("select question from twitter.poll_questions where id=?");
+            statement.setInt(1,id);
+            ResultSet result = statement.executeQuery();
+            result.next();
+            poll.setQuestion(result.getString(1));
+            poll.setId(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            PreparedStatement statement = con.prepareStatement("select * from twitter.poll_answers where question_id=?");
+            statement.setInt(1,id);
+            ResultSet result = statement.executeQuery();
+            while (result.next()){
+                Answer answer=new Answer();
+                answer.setId(result.getInt(1));
+                answer.setAnswer(result.getString(3));
+                answer.setVotes(result.getInt(4));
+                poll.addAnswer(answer);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+        return poll;
+    }
+    public int getPollAnswerByUser(int id,String username){
+
+      try {
+        PreparedStatement statement = con.prepareStatement("select id from twitter.poll_answers where question_id=?");
+        statement.setInt(1,id);
+        ResultSet result = statement.executeQuery();
+        while (result.next()){
+            statement = con.prepareStatement("select user_id from twitter.poll_user_answers where poll_answer_id=?");
+            statement.setInt(1,result.getInt(1));
+            ResultSet result_user = statement.executeQuery();
+            while (result_user.next()){
+                if(Objects.equals(Objects.requireNonNull(getUserFromId(result_user.getInt(1))).getUserName(), username)){
+                    return result.getInt(1);
+                }
+            }
+
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return -2;
+    }
+        return -1;
+    }
+    public OutputType setPollAnswer(int id,String username){
+
+        try {
+            PreparedStatement statement = con.prepareStatement("insert into  twitter.poll_user_answers VALUES(DEFAULT ,?,?) ");
+            statement.setInt(1,getUserId(username));
+            statement.setInt(2,id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return OutputType.INVALID;
+        }
+        try {
+            PreparedStatement statement = con.prepareStatement("UPDATE poll_answers SET votes = votes + 1 WHERE id = ? ");
+            statement.setInt(1,id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return OutputType.INVALID;
+        }
+
+        return OutputType.SUCCESS;
+
+    }
+
 
 
 
@@ -205,7 +316,6 @@ public class Database {
                 return true;
             }
         }
-        //haert
 
         return false;
     }
