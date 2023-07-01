@@ -141,6 +141,7 @@ public class Database {
             ResultSet result = statement.executeQuery();
             while (result.next()){
                 Message message=new Message(
+                        result.getInt(1),
                         Objects.requireNonNull(getUserFromId(result.getInt(2))).getUserName(),
                         Objects.requireNonNull(getUserFromId(result.getInt(3))).getUserName(),
                         result.getString(4),

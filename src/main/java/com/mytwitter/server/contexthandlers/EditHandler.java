@@ -20,6 +20,7 @@ public class EditHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+
         if(exchange.getRequestMethod().equals("POST")) {
             String usernameToRequest = (String) exchange.getAttribute("username");
             Gson gson = new Gson();

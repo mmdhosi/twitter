@@ -368,7 +368,7 @@ public class Requester {
     public ArrayList<Direct> getAllDirects(){
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/all"))
+                    .uri(new URI("http://localhost:8000/direct/all"))
                     .header("authorization", jwt)
                     .GET()
                     .build();
@@ -390,7 +390,7 @@ public class Requester {
     public ArrayList<Message> getAllMessages(String directUsername){
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/messages/"+directUsername))
+                    .uri(new URI("http://localhost:8000/direct/messages/"+directUsername))
                     .header("authorization", jwt)
                     .GET()
                     .build();
@@ -412,7 +412,7 @@ public class Requester {
     public OutputType setSeen(int id){
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/seen/"+id))
+                    .uri(new URI("http://localhost:8000/direct/seen/"+id))
                     .header("authorization", jwt)
                     .POST(HttpRequest.BodyPublishers.noBody())
                     .build();
@@ -432,7 +432,7 @@ public class Requester {
     public OutputType sendMessage(String receiver, String content){
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8000/send_message/"+receiver))
+                    .uri(new URI("http://localhost:8000/direct/send_message/"+receiver))
                     .header("authorization", jwt)
                     .POST(HttpRequest.BodyPublishers.ofString(content))
                     .build();

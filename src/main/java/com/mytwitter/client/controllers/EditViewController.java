@@ -109,7 +109,7 @@ public class EditViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // set max characters
         bioTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.length() > MAX_CHARACTERS) {
+            if (newValue!=null && newValue.length() > MAX_CHARACTERS) {
                 bioTextArea.setText(newValue.substring(0, MAX_CHARACTERS));
             }
         });

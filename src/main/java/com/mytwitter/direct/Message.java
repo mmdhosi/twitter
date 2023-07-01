@@ -8,13 +8,23 @@ public class Message {
     private String content,sender,receiver;
     private Timestamp sendTime;
     private Boolean isSeen;
+    private int id;
 
-    public Message(String sender, String receiver, String content, Timestamp sendTime, Boolean isSeen) {
+    public Message(int id, String sender, String receiver, String content, Timestamp sendTime, Boolean isSeen) {
+        this.id = id;
         this.content = content;
         this.sender = sender;
         this.receiver = receiver;
         this.sendTime = sendTime;
         this.isSeen = isSeen;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getContent() {

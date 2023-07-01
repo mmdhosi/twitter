@@ -60,6 +60,9 @@ public class HomeController implements Initializable {
     private Button logoutButton;
 
     @FXML
+    private Button messagesButton;
+
+    @FXML
     private Button profileButton;
 
     @FXML
@@ -95,6 +98,7 @@ public class HomeController implements Initializable {
 
         profileButton.setOnAction(event -> new ProfileViewController(currentStage, currentUsername));
         logoutButton.setOnAction(event -> new WelcomeViewController(currentStage));
+        messagesButton.setOnAction(event -> new DirectViewController(currentStage));
 
         setMagnifierButtonFeatures();
 

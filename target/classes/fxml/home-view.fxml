@@ -41,7 +41,7 @@
                         <Font size="14.0" />
                      </font>
                      <padding>
-                        <Insets bottom="5.0" left="12.0" right="12.0" top="5.0" />
+                        <Insets bottom="5.0" left="19.0" right="19.0" top="5.0" />
                      </padding>
                   </Button>
                   <Button fx:id="logoutButton" mnemonicParsing="false" text="Log out">
@@ -49,8 +49,13 @@
                         <Font size="14.0" />
                      </font>
                      <padding>
-                        <Insets bottom="5.0" left="9.0" right="9.0" top="5.0" />
+                        <Insets bottom="5.0" left="16.0" right="13.0" top="5.0" />
                      </padding>
+                  </Button>
+                  <Button fx:id="messagesButton" mnemonicParsing="false" text="Messages">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
                   </Button>
                </children></VBox>
             <Button fx:id="tweetButton" alignment="CENTER" mnemonicParsing="false" onAction="#tweetAction" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
