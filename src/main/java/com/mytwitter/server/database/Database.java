@@ -441,8 +441,7 @@ public class Database {
             PreparedStatement statement = con.prepareStatement("SELECT id FROM twitter.bio WHERE username=?");
             statement.setString(1, userName);
             ResultSet result = statement.executeQuery();
-            result.next();
-            if(result.next()){
+            if(!result.next()){
                 addBio(userName, bio);
             } else {
                 statement = con.prepareStatement("UPDATE twitter.bio SET location = ?, web_adress = ?, text = ? WHERE username = ?");
@@ -452,8 +451,6 @@ public class Database {
                 statement.setString(4, userName);
                 statement.executeUpdate();
             }
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -941,7 +938,7 @@ public class Database {
                 return addRetweet(result.getInt(1),userName);
             }
 
-            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,NULL,?,NULL,NULL,?, NULL)");
+            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,NULL,?,NULL,NULL,?, NULL, DEFAULT)");
             statement.setInt(1, getUserId(userName));
             statement.setString(2, "R");
             statement.setInt(3, 0);
@@ -965,7 +962,7 @@ public class Database {
 
         PreparedStatement statement = null;
         try {
-            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,?,?,NULL)");
+            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,?,?,NULL, DEFAULT)");
             statement.setInt(1, getUserId(userName));
             statement.setString(2, "Q");
             statement.setInt(3, 0);
@@ -1010,7 +1007,7 @@ public class Database {
             }
 
 
-            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,NULL,?,?)");
+            statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,NULL,?,?,DEFAULT)");
             statement.setInt(1, getUserId(userName));
             statement.setString(2, "P");
             statement.setInt(3, 0);
