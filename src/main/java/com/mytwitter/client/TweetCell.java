@@ -1,15 +1,13 @@
 package com.mytwitter.client;
 
-import com.mytwitter.client.controllers.CommentsViewController;
-import com.mytwitter.client.controllers.HashtagController;
-import com.mytwitter.client.controllers.ProfileViewController;
-import com.mytwitter.client.controllers.QuoteRetweetViewController;
+import com.mytwitter.client.controllers.*;
 import com.mytwitter.poll.Answer;
 import com.mytwitter.poll.Poll;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.ImageBase64;
 import com.mytwitter.util.ProfileImage;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -209,9 +207,13 @@ public class TweetCell extends ListCell<Tweet> {
 
             Poll poll = regularTweet.getPoll();
             if(poll != null){
+                VBox pollBox;
                 if(poll.getAnsweredId() != -1){
-
+                    pollBox = createAnsweredPoll(poll);
+                } else {
+                    pollBox = createUnansweredPoll(poll);
                 }
+                contentBox.getChildren().add(pollBox);
             }
         }
 
@@ -323,7 +325,10 @@ public class TweetCell extends ListCell<Tweet> {
         Button voteButton = new Button();
         voteButton.setText("Vote");
         voteButton.setOnAction(event -> {
-            //TODO: vote
+            ToggleButton toggleButton = (ToggleButton) answersToggleGroup.getSelectedToggle();
+            int index = pollBox.getChildren().indexOf(toggleButton) - 1;
+            Requester.getRequester().answerPoll(poll.getAnswers().get(index).getId());
+            HomeController.refreshList();
         });
 
         HBox voteBox = new HBox(voteButton);
@@ -378,7 +383,7 @@ public class TweetCell extends ListCell<Tweet> {
             voteBox.setSpacing(3);
 
             AnchorPane answerBox = new AnchorPane(answerLabel, voteBox);
-            if(i == poll.getAnswered_id() + 2)
+            if(poll.getAnsweredId() == answer.getId())
                 answerBox.setBackground(new Background(new BackgroundFill(Color.LIGHTGREEN, null, null)));
 
             answerBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));

@@ -68,7 +68,7 @@ public class HomeController implements Initializable {
     @FXML
     private ImageView profileImageView;
 
-    ObservableList<Tweet> items = FXCollections.observableArrayList();
+    static ObservableList<Tweet> items = FXCollections.observableArrayList();
 
 
     public HomeController(Stage currentStage) {
@@ -116,6 +116,10 @@ public class HomeController implements Initializable {
                 return new TweetCell(currentStage, requester);
             }
         });
+    }
+
+    public static void refreshList(){
+        items.setAll(Requester.getRequester().getTimeline());
     }
 
     private void setMagnifierButtonFeatures() {

@@ -1,6 +1,8 @@
 package com.mytwitter.client.controllers;
 
 import com.mytwitter.client.Requester;
+import com.mytwitter.poll.Answer;
+import com.mytwitter.poll.Poll;
 import com.mytwitter.tweet.RequestTweet;
 import com.mytwitter.util.ImageBase64;
 import com.mytwitter.util.OutputType;
@@ -34,6 +36,7 @@ import java.util.ResourceBundle;
 
 public class TweetViewController implements Initializable {
 
+    private static final int MAX_OPTIONS = 6;
     @FXML
     private Button addImageButton;
     @FXML
@@ -154,7 +157,7 @@ public class TweetViewController implements Initializable {
         addOptionButton.setOnAction(event -> {
             pollBox.getChildren().remove(pollBox.getChildren().size()-1);
             pollBox.getChildren().add(getNewOptionBox(++pollOptionsCount));
-            if(pollOptionsCount < 6)
+            if(pollOptionsCount < MAX_OPTIONS)
                 pollBox.getChildren().add(newOptionBox);
         });
     }
@@ -171,6 +174,27 @@ public class TweetViewController implements Initializable {
 
             requestTweet.setContent(textArea.getText());
             requestTweet.setImage(imageBase64);
+
+            if(pollBox.isVisible()){
+                Poll poll = new Poll();
+                TextField questionField = (TextField) pollBox.getChildren().get(0);
+                poll.setQuestion(questionField.getText());
+                for(int i = 1; i < MAX_OPTIONS; i++){
+                    Answer answer = new Answer();
+                    HBox hBox= (HBox) pollBox.getChildren().get(i);
+                    try {
+                        if (hBox.getChildren().get(1) instanceof TextField answerField) {
+                            answer.setAnswer(answerField.getText());
+                            poll.addAnswer(answer);
+                        } else
+                            break;
+                    } catch (IndexOutOfBoundsException e){
+                        break;
+                    }
+                }
+                requestTweet.setPoll(poll);
+            }
+
             OutputType result = requester.regularTweet(requestTweet);
             if(result == OutputType.SUCCESS){
                 tweetStage.hide();

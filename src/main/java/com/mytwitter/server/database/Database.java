@@ -193,7 +193,7 @@ public class Database {
         try {
             PreparedStatement statement = con.prepareStatement("INSERT INTO twitter.poll_questions VALUES(DEFAULT ,?)", Statement.RETURN_GENERATED_KEYS);
             statement.setString(1,poll.getQuestion());
-
+            statement.executeUpdate();
             ResultSet rs = statement.getGeneratedKeys();
             if (rs.next()) {
                 questionId = rs.getInt(1);
