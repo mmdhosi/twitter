@@ -99,7 +99,6 @@ public class DirectViewController implements Initializable {
 
                         usernameLabel.setText("@" + user.getUserName());
 
-                        //TODO: check seen
                         Message lastMessage = direct.getLastMessage();
                         if(lastMessage.getSender().equals(Requester.getUsername())){
                             if(lastMessage.getSeen())

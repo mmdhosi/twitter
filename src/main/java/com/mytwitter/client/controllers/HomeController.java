@@ -113,7 +113,6 @@ public class HomeController implements Initializable {
             @Override
             public ListCell<Tweet> call(ListView<Tweet> cardModelListView) {
 //                return new ListViewCell();
-                //TODO: handle tweet time
                 return new TweetCell(currentStage, requester);
             }
         });

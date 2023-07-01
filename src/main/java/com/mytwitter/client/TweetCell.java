@@ -4,6 +4,7 @@ import com.mytwitter.client.controllers.CommentsViewController;
 import com.mytwitter.client.controllers.HashtagController;
 import com.mytwitter.client.controllers.ProfileViewController;
 import com.mytwitter.client.controllers.QuoteRetweetViewController;
+import com.mytwitter.poll.Poll;
 import com.mytwitter.tweet.*;
 import com.mytwitter.user.UserProfile;
 import com.mytwitter.util.ImageBase64;
@@ -43,7 +44,6 @@ public class TweetCell extends ListCell<Tweet> {
     protected void updateItem(Tweet tweet, boolean empty) {
         super.updateItem(tweet, empty);
         if (!empty && tweet != null) {
-            //TODO: handle tweet image
             setGraphic(createTweet(currentStage, tweet, true, true));
             getStyleClass().add("fx-cell-size: 50px;");
 //                            CardController card = new CardController();
@@ -204,6 +204,13 @@ public class TweetCell extends ListCell<Tweet> {
                 tweetImageView.setFitWidth(100);
                 tweetImageView.setFitHeight(80);
                 contentBox.getChildren().add(tweetImageView);
+            }
+
+            Poll poll = regularTweet.getPoll();
+            if(poll != null){
+                if(poll.getAnsweredId() != -1){
+
+                }
             }
         }
 

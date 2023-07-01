@@ -77,6 +77,7 @@ public class Server {
             server.createContext("/edit", new EditHandler()).setAuthenticator(auth);
             server.createContext("/hashtag", new HashtagHandler());
             server.createContext("/direct", new DirectHandler()).setAuthenticator(auth);
+            server.createContext("/poll", new PollHandler()).setAuthenticator(auth);
 
             server.setExecutor(clientsThreads);
             server.start();

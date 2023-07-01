@@ -43,7 +43,6 @@ public class Requester {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                     .build();
             HttpResponse<String> GETResponse = httpClient.send(signupRequest, HttpResponse.BodyHandlers.ofString());
-            // TODO: check response codes (duplicates)
             if (GETResponse.statusCode() == 200) {
                 return OutputType.SUCCESS;
             } else {
@@ -449,7 +448,25 @@ public class Requester {
         }
     }
 
+    public OutputType answerPoll(int answerId){
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8000/poll/answer/"+answerId))
+                    .header("authorization", jwt)
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
 
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if(response.statusCode() != 200){
+                throw new IOException();
+            }
+            return OutputType.SUCCESS;
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            return OutputType.FAILURE;
+        }
+    }
 
 
 

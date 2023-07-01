@@ -185,13 +185,15 @@ public class Database {
         }
         return directs;
     }
-    public OutputType addPoll(Poll poll){
+
+    public int addPoll(Poll poll){
         int questionId = 0;
+
 
         try {
             PreparedStatement statement = con.prepareStatement("INSERT INTO twitter.poll_questions VALUES(DEFAULT ,?)", Statement.RETURN_GENERATED_KEYS);
             statement.setString(1,poll.getQuestion());
-            statement.executeUpdate();
+
             ResultSet rs = statement.getGeneratedKeys();
             if (rs.next()) {
                 questionId = rs.getInt(1);
@@ -199,7 +201,7 @@ public class Database {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return OutputType.INVALID;
+            return 0;
         }
         for (Answer a:poll.getAnswers()) {
             try {
@@ -210,10 +212,10 @@ public class Database {
                 statement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
-                return OutputType.INVALID;
+                return 0;
             }
         }
-        return OutputType.SUCCESS;
+        return questionId;
     }
     public Poll getPoll(int id){
         Poll poll=new Poll();
@@ -252,18 +254,18 @@ public class Database {
         PreparedStatement statement = con.prepareStatement("select id from twitter.poll_answers where question_id=?");
         statement.setInt(1,id);
         ResultSet result = statement.executeQuery();
+        // list of answers to question id
         while (result.next()){
             statement = con.prepareStatement("select user_id from twitter.poll_user_answers where poll_answer_id=?");
             statement.setInt(1,result.getInt(1));
             ResultSet result_user = statement.executeQuery();
+            // list of users
             while (result_user.next()){
                 if(Objects.equals(Objects.requireNonNull(getUserFromId(result_user.getInt(1))).getUserName(), username)){
                     return result.getInt(1);
                 }
             }
-
         }
-
     } catch (SQLException e) {
         e.printStackTrace();
         return -2;
@@ -366,7 +368,6 @@ public class Database {
     }
 
     public OutputType addBio(String username, Bio bio){
-        //TODO: check bio length in client
         try {
             PreparedStatement statement = con.prepareStatement("UPDATE twitter.users SET bio_id= ? WHERE username=?");
             statement.setInt(1, createBioRecord(username, bio));
@@ -586,7 +587,6 @@ public class Database {
             statement.setString(3, wordToSearch);
             ResultSet result = statement.executeQuery();
             while (result.next()) {
-                //TODO: do the rest
                 String username = result.getString(1);
                 User user = getUser(username);
                 UserProfile profile =new UserProfile();
@@ -667,7 +667,6 @@ public class Database {
         }
         return users;
     }
-    //TODO:Check
     public Tweet getTweet(int tweetId){
         try {
             PreparedStatement statement = con.prepareStatement("SELECT * FROM twitter.tweets WHERE id=?");
@@ -702,6 +701,10 @@ public class Database {
                         tweet.setImage(null);
                     }
                 }
+                if(result.getInt(13) != 0){
+                    tweet.setPoll(getPoll(result.getInt(13)));
+                }
+
                 resultTweet = tweet;
             }
             else if(result.getString(3).equals("P")) {
@@ -754,7 +757,6 @@ public class Database {
             return null;
         }
 
-        //TODO: if it is retweeted to it self???
         ArrayList<User> followings=getFollowings(userName);
         HashSet<Tweet> timeline = new HashSet<>();
         for (User following:followings) {
@@ -764,11 +766,15 @@ public class Database {
                 ResultSet result = statement.executeQuery();
                 Tweet tweet;
                 while(result.next()){
-                    //TODO: check if it is liked
                     tweet = getTweet(result.getInt(1));
 
                     if(checkIfLiked(tweet.getTweetId(), userName))
                         tweet.setLiked();
+                    if(tweet instanceof RegularTweet regularTweet){
+                        Poll poll = regularTweet.getPoll();
+                        if(poll != null)
+                            poll.setAnsweredId(getPollAnswerByUser(poll.getId(), userName));
+                    }
 
                     timeline.add(tweet);
                 }
@@ -814,24 +820,6 @@ public class Database {
             }
         });
         return tweets;
-    }
-
-
-    public int idTweetByTimeAndUserid(String userName, Timestamp timestamp){
-        PreparedStatement statement = null;
-        try {
-            statement = con.prepareStatement("SELECT id FROM twitter.tweets WHERE time = ? AND user_id = ?");
-            timestamp.setNanos(0);
-            statement.setTimestamp(1, timestamp);
-            statement.setInt(2, getUserId(userName));
-            ResultSet result = statement.executeQuery();
-            result.next();
-            int tweetId = result.getInt(1);
-            return tweetId;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
     }
 
     public void extractHashtags(String content, int tweetId){
@@ -896,13 +884,13 @@ public class Database {
 
 
     }
-    public OutputType addTweet(String username, String content, String imgLocation){
+
+    public OutputType addTweet(String username, String content, String imgLocation, int pollId){
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
         PreparedStatement statement = null;
         try {
-            //TODO:280 char limit
-            statement = con.prepareStatement("INSERT INTO twitter.tweets(user_id,tweet_type,content, image_location, time) VALUES(?,?,?,?,?)");
+            statement = con.prepareStatement("INSERT INTO twitter.tweets(user_id,tweet_type,content, image_location, time, poll_id) VALUES(?,?,?,?,?,?)");
 
             statement.setInt(1, getUserId(username));
             statement.setString(2, "T");
@@ -912,6 +900,10 @@ public class Database {
                 statement.setString(4, imgLocation);
             else
                 statement.setNull(4, Types.VARCHAR);
+            if(pollId != 0)
+                statement.setInt(6, pollId);
+            else
+                statement.setNull(6, Types.INTEGER);
 
 
             int newTweetId;
@@ -930,15 +922,12 @@ public class Database {
 
     }
     public OutputType addRetweet(int retweetedId, String userName){
-        //TODO: add count retweet_count  DONE
-        //TODO: handle if a retweet gets retweeted  DONE
+
 
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
         PreparedStatement statement = null;
         try {
-            //TODO: handle image
-            //TODO:280 char limit
 
             statement = con.prepareStatement("SELECT tweet_type FROM twitter.tweets WHERE id=?");
             statement.setInt(1, retweetedId);
@@ -976,9 +965,6 @@ public class Database {
 
         PreparedStatement statement = null;
         try {
-            //TODO: handle image
-            //TODO: 280 char limit
-            //TODO: extract hashtag and add it to its table DONE
             statement = con.prepareStatement("INSERT INTO twitter.tweets VALUES(DEFAULT,?,?,?,?,?,?,NULL,NULL,?,?,NULL)");
             statement.setInt(1, getUserId(userName));
             statement.setString(2, "Q");
@@ -1004,14 +990,11 @@ public class Database {
 
     }
     public OutputType addReply(int tweetToReplyId, String userName, String reply){
-        //TODO: add count reply_count  DONE
 
         Timestamp tweetDate = Timestamp.valueOf(LocalDateTime.now());
 
         PreparedStatement statement = null;
         try {
-            //TODO: handle image
-            //TODO: 280 char limit
             //TODO: extract hashtag and add it to its table
 
             statement = con.prepareStatement("SELECT tweet_type FROM twitter.tweets WHERE id=?");
@@ -1171,7 +1154,6 @@ public class Database {
     }
 
     public OutputType unlikeTweet(int tweetToUnlikeId, String userName){
-        //TODO: handle if its retweet    DONE
 
         PreparedStatement statement = null;
         try {

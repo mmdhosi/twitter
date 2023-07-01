@@ -4,8 +4,6 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 public abstract class Tweet {
-    //TODO:image
-
     private String username;
     private String content;
     private int likeCount = 0,replyCount = 0,retweetCount = 0;

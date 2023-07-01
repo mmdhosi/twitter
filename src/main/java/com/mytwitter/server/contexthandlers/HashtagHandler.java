@@ -14,7 +14,6 @@ import java.util.ArrayList;
 public class HashtagHandler implements HttpHandler {
     Database databaseManager = Database.getManager();
     @Override
-    //TODO:check if it handle /#
 
     public void handle(HttpExchange exchange) throws IOException {
         String uri = exchange.getRequestURI().toString();

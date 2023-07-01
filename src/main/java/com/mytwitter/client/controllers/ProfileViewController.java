@@ -120,7 +120,6 @@ public class ProfileViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         homeButton.setOnAction(this::clickOnHomeButton);
-        // TODO: vaghti block karde natone follow kone
 
         UserProfile profile = requester.getProfile(username);
 

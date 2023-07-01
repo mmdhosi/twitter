@@ -1,5 +1,6 @@
 package com.mytwitter.server.contexthandlers;
 
+import com.mytwitter.poll.Poll;
 import com.mytwitter.server.ServerGson;
 import com.mytwitter.server.database.Database;
 import com.mytwitter.tweet.*;
@@ -22,8 +23,6 @@ public class TweetHandler implements HttpHandler {
         return result;
     }
 
-
-
     @Override
     public void handle(HttpExchange exchange){
 
@@ -43,10 +42,15 @@ public class TweetHandler implements HttpHandler {
 
                     String imgLocation = null;
                     if (!tweet.getImage().equals("")) {
-                        imgLocation = ImageBase64.downloadImage("tweetImages/",tweet.getImage());
+                        imgLocation = ImageBase64.downloadImage("tweetImages/", tweet.getImage());
+                    }
+                    Poll poll = tweet.getPoll();
+                    int pollId = 0;
+                    if (poll != null) {
+                        pollId = manager.addPoll(poll);
                     }
 
-                    manager.addTweet(username, tweet.getContent(), imgLocation);
+                    manager.addTweet(username, tweet.getContent(), imgLocation, pollId);
                     break;
                 case "quote":
                     int quoteId = Integer.parseInt(segments[3]);

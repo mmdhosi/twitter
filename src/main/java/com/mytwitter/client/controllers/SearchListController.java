@@ -80,7 +80,7 @@ public class SearchListController implements Initializable {
                     protected void updateItem(UserProfile profile, boolean empty) {
                         super.updateItem(profile, empty);
                         if (!empty && profile != null) {
-                            //TODO: get profile image
+                            //TODO: update design
 
                             profileImg.setImage(new Image(convertImageToStream(profile.getAvatar())));
                             float radius = 20;
