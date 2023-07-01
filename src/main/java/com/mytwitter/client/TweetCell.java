@@ -4,11 +4,9 @@ import com.mytwitter.client.controllers.CommentsViewController;
 import com.mytwitter.client.controllers.HashtagController;
 import com.mytwitter.client.controllers.ProfileViewController;
 import com.mytwitter.client.controllers.QuoteRetweetViewController;
-import com.mytwitter.tweet.Quote;
-import com.mytwitter.tweet.Reply;
-import com.mytwitter.tweet.Retweet;
-import com.mytwitter.tweet.Tweet;
+import com.mytwitter.tweet.*;
 import com.mytwitter.user.UserProfile;
+import com.mytwitter.util.ImageBase64;
 import com.mytwitter.util.ProfileImage;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -101,16 +100,15 @@ public class TweetCell extends ListCell<Tweet> {
         Hyperlink usernameLabel = new Hyperlink();
         Label typeLabel = new Label();
         VBox contentBox = new VBox();
-        TextFlow contentText = new TextFlow();
+        TextFlow contentText;
         Button likesButton = new Button();
         Button repliesButton = new Button();
         Button retweetsButton = new Button();
         ImageView profileImg = new ImageView();
-        HBox actionsBox;
+        HBox actionsBox = null;
         Requester requester = Requester.getRequester();
 
         typeLabel.setTextFill(Color.GRAY);
-
 
         setProfile(profileImg, tweet.getUserName());
         setUsername(usernameLabel, tweet, currentStage);
@@ -155,7 +153,7 @@ public class TweetCell extends ListCell<Tweet> {
             actionsBox.setSpacing(20);
 
             contentBox = createContentBoxReply(new HBox(profileImg, usernameLabel), currentStage, reply, showSubjectTweet);
-        } else {
+        } else if(tweet instanceof RegularTweet regularTweet) {
             contentBox.getChildren().add(new HBox(profileImg, usernameLabel));
             setLikeButton(likesButton, tweet, requester);
             setRepliesButton(currentStage, tweet, repliesButton, requester);
@@ -165,6 +163,16 @@ public class TweetCell extends ListCell<Tweet> {
 
             contentText = parseContent(currentStage, tweet.getContent());
             contentBox.getChildren().add(contentText);
+
+            String base64Img = regularTweet.getImage();
+            if (base64Img != null){
+                Image tweetImage = new Image(ImageBase64.convertToStream(base64Img));
+                ImageView tweetImageView = new ImageView();
+                tweetImageView.setImage(tweetImage);
+                tweetImageView.setFitWidth(100);
+                tweetImageView.setFitHeight(80);
+                contentBox.getChildren().add(tweetImageView);
+            }
         }
 
         if(placeActions)

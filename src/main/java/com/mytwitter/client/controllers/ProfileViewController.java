@@ -246,10 +246,12 @@ public class ProfileViewController implements Initializable {
         if (BLOCK.equals(blockButton.getText())) {
             requester.block(username);
             blockButton.setText(UNBLOCK);
-            followButton.setText("follow");
+            followButton.setText(FOLLOW);
+            followButton.setDisable(true);
         } else {
             requester.unblock(username);
             blockButton.setText(BLOCK);
+            followButton.setDisable(false);
         }
     }
 

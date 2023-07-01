@@ -10,6 +10,7 @@ import com.mytwitter.util.OutputType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -520,12 +521,22 @@ public class Database {
                         result.getInt(5),
                         result.getInt(6),
                         getTweet(result.getInt(8)));
-            else if(result.getString(3).equals("T"))
-                resultTweet = new RegularTweet(getUserFromId(result.getInt(2)).getUserName(),
+            else if(result.getString(3).equals("T")) {
+                RegularTweet tweet = new RegularTweet(getUserFromId(result.getInt(2)).getUserName(),
                         result.getString(7),
                         result.getInt(4),
                         result.getInt(5),
                         result.getInt(6));
+                String imgLocation = result.getString(9);
+                if(imgLocation != null){
+                    try {
+                        tweet.setImage(ImageBase64.convertToBase64(new FileInputStream(imgLocation)));
+                    } catch (FileNotFoundException e) {
+                        tweet.setImage(null);
+                    }
+                }
+                resultTweet = tweet;
+            }
             else if(result.getString(3).equals("P")) {
                 Tweet repliedToTweet = getTweet(result.getInt(12));
                 Reply reply = new Reply(getUserFromId(result.getInt(2)).getUserName(),
