@@ -24,6 +24,11 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Set;
 
 public class TweetCell extends ListCell<Tweet> {
@@ -96,6 +101,30 @@ public class TweetCell extends ListCell<Tweet> {
         return textFlow;
     }
 
+    public static String calculateTweetDate(Date tweetDate) {
+        String out;
+        Instant instant = tweetDate.toInstant();
+        Instant now = Instant.now();
+        Duration duration = Duration.between(instant, now);
+        long days = duration.toDays();
+        long hours = duration.toHours() % 24;
+        long minutes = duration.toMinutes() % 60;
+        if(days==0){
+            if(hours==0){
+                out=minutes+"m ago";
+            }else {
+                out=hours+"h ago";
+            }
+        }else {
+            long millis = duration.toMillis();
+            Date result = new Date(millis);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
+            out = dateFormat.format(result);
+        }
+
+        return out;
+    }
+
     public static VBox createTweet(Stage currentStage, Tweet tweet, boolean placeActions, boolean showSubjectTweet){
         Hyperlink usernameLabel = new Hyperlink();
         Label typeLabel = new Label();
@@ -105,14 +134,17 @@ public class TweetCell extends ListCell<Tweet> {
         Button repliesButton = new Button();
         Button retweetsButton = new Button();
         ImageView profileImg = new ImageView();
+        Label timeStamp = new Label();
         HBox actionsBox = null;
         Requester requester = Requester.getRequester();
 
         typeLabel.setTextFill(Color.GRAY);
+        timeStamp.setTextFill(Color.GRAY);
+
+        timeStamp.setText(calculateTweetDate(tweet.getTimestamp()));
 
         setProfile(profileImg, tweet.getUserName());
         setUsername(usernameLabel, tweet, currentStage);
-
 
 
         if (tweet instanceof Retweet retweet) {
@@ -122,7 +154,7 @@ public class TweetCell extends ListCell<Tweet> {
             setLikeButton(likesButton, retweet.getRetweetedTweet(), requester);
             setRepliesButton(currentStage, retweet.getRetweetedTweet(), repliesButton, requester);
             setRetweetButton(retweetsButton, retweet.getRetweetedTweet());
-            actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
+            actionsBox = new HBox(likesButton, repliesButton, retweetsButton, timeStamp);
             actionsBox.setSpacing(20);
 
             contentBox.getChildren().add(typeLabel);
@@ -136,7 +168,7 @@ public class TweetCell extends ListCell<Tweet> {
             setLikeButton(likesButton, tweet, requester);
             setRepliesButton(currentStage, tweet, repliesButton, requester);
             setRetweetButton(retweetsButton, tweet);
-            actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
+            actionsBox = new HBox(likesButton, repliesButton, retweetsButton, timeStamp);
             actionsBox.setSpacing(20);
 
 
@@ -149,7 +181,7 @@ public class TweetCell extends ListCell<Tweet> {
             setLikeButton(likesButton, tweet, requester);
             setRepliesButton(currentStage, tweet, repliesButton, requester);
             setRetweetButton(retweetsButton, tweet);
-            actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
+            actionsBox = new HBox(likesButton, repliesButton, retweetsButton, timeStamp);
             actionsBox.setSpacing(20);
 
             contentBox = createContentBoxReply(new HBox(profileImg, usernameLabel), currentStage, reply, showSubjectTweet);
@@ -158,7 +190,7 @@ public class TweetCell extends ListCell<Tweet> {
             setLikeButton(likesButton, tweet, requester);
             setRepliesButton(currentStage, tweet, repliesButton, requester);
             setRetweetButton(retweetsButton, tweet);
-            actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
+            actionsBox = new HBox(likesButton, repliesButton, retweetsButton, timeStamp);
             actionsBox.setSpacing(20);
 
             contentText = parseContent(currentStage, tweet.getContent());
@@ -182,13 +214,14 @@ public class TweetCell extends ListCell<Tweet> {
 
     }
 
-    //TODO: bigger space for bigger numbers
     private static void setRepliesButton(Stage currentStage, Tweet tweet, Button repliesButton, Requester requester) {
         repliesButton.setText("💬" + tweet.getReplyCount());
         repliesButton.setPrefWidth(40);
         repliesButton.setOnAction(event -> {
             new CommentsViewController(currentStage, tweet);
         });
+        repliesButton.setStyle("-fx-padding: 3 2 2 3");
+
     }
 
     public static void setRetweetButton(Button retweetsButton, Tweet tweet) {
@@ -197,6 +230,8 @@ public class TweetCell extends ListCell<Tweet> {
         retweetsButton.setOnAction(event -> {
             new QuoteRetweetViewController(tweet);
         });
+        retweetsButton.setStyle("-fx-padding: 3 2 2 3");
+
     }
 
     public static void setLikeButton(Button likesButton, Tweet tweet, Requester requester) {
@@ -206,6 +241,7 @@ public class TweetCell extends ListCell<Tweet> {
             likesButton.setText("♡" + tweet.getLikeCount());
 
         likesButton.setPrefWidth(40);
+        likesButton.setStyle("-fx-padding: 3 2 2 3");
         likesButton.setOnAction(new LikeEventHandler(tweet, requester));
     }
 
@@ -223,14 +259,17 @@ public class TweetCell extends ListCell<Tweet> {
     public static void setProfile(ImageView profileImg, String username) {
         Requester requester = Requester.getRequester();
         String img = requester.getUserAvatar(username);
+        setProfileAvatar(profileImg ,ProfileImage.getAvatarImage(img), 15);
 
-        profileImg.setImage(ProfileImage.getAvatarImage(img));
+    }
 
-        float radius = 20;
-        profileImg.setFitHeight(radius);
-        profileImg.setFitWidth(radius);
-        Circle clip = new Circle(radius / 2, radius / 2, radius / 2);
-        profileImg.setClip(clip);
+    public static void setProfileAvatar(ImageView imageView, Image image, float radius){
+        imageView.setImage(image);
+
+        imageView.setFitHeight(radius*2);
+        imageView.setFitWidth(radius*2);
+        Circle clip = new Circle(radius, radius, radius);
+        imageView.setClip(clip);
     }
 
     public static VBox createContentBoxReply(HBox userInfoBox, Stage currentStage, Reply reply, boolean showSubjectTweet){

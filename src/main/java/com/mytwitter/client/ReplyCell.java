@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class ReplyCell extends ListCell<Reply> {
@@ -31,19 +32,23 @@ public class ReplyCell extends ListCell<Reply> {
     private Button repliesButton = new Button();
     private Button retweetsButton = new Button();
     private ImageView profileImg = new ImageView();
+    private Label timeStamp = new Label();
 
     @Override
     protected void updateItem(Reply reply, boolean empty) {
         super.updateItem(reply, empty);
         if (!empty && reply != null) {
+            timeStamp.setTextFill(Color.GRAY);
+
             setStyle("-fx-border-color: black;");
 
             TweetCell.setProfile(profileImg, reply.getUserName());
             TweetCell.setUsername(usernameLabel, reply, currentStage);
+            timeStamp.setText(TweetCell.calculateTweetDate(reply.getTimestamp()));
 
             TweetCell.setLikeButton(likesButton, reply, requester);
             TweetCell.setRetweetButton(retweetsButton, reply);
-            HBox actionsBox = new HBox(likesButton, repliesButton, retweetsButton);
+            HBox actionsBox = new HBox(likesButton, repliesButton, retweetsButton, timeStamp);
             actionsBox.setSpacing(20);
 
             VBox contentBox = TweetCell.createContentBoxReply(new HBox(profileImg, usernameLabel), currentStage, reply, false);

@@ -24,6 +24,14 @@ public class UserProfile implements Serializable {
         this.followers = followers;
     }
 
+    public ArrayList<UserProfile> getFollowers() {
+        return followers;
+    }
+
+    public ArrayList<UserProfile> getFollowings() {
+        return followings;
+    }
+
     public void setFollowings(ArrayList<UserProfile> followings) {
         this.followings = followings;
     }

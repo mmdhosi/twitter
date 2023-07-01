@@ -16,6 +16,8 @@ public class ImageBase64 {
         return null;
     }
     public static InputStream convertToStream(String image){
+        if(image == null)
+            return null;
         return new ByteArrayInputStream(Base64.getDecoder().decode(image));
     }
 

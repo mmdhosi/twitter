@@ -78,7 +78,7 @@
             <Label text="Bio :" GridPane.rowIndex="2" />
          </children>
       </GridPane>
-      <TextArea fx:id="bioTextArea" layoutX="88.0" layoutY="450.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="450.0" />
+      <TextArea fx:id="bioTextArea" layoutX="88.0" layoutY="450.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="450.0" />
       <Button fx:id="submitButton" layoutX="310.0" layoutY="579.0" mnemonicParsing="false" onAction="#submitAction" text="Submit" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="15.0" />
       <Label alignment="CENTER" layoutX="130.0" layoutY="569.0" text="Avatar and Header" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="570.0">
          <font>

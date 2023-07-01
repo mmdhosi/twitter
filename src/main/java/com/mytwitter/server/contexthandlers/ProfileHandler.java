@@ -41,12 +41,16 @@ public class ProfileHandler implements HttpHandler {
 
                     for (User u : followers) {
                         UserProfile followerProfile = new UserProfile();
+                        followerProfile.setUser(u);
                         followerProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
+                        followerProfile.setBio(databaseManager.getBio(u.getUserName()));
                         followersProfile.add(followerProfile);
                     }
                     for (User u : followings) {
                         UserProfile followingProfile = new UserProfile();
+                        followingProfile.setUser(u);
                         followingProfile.setAvatar(databaseManager.getAvatar(u.getUserName()));
+                        followingProfile.setBio(databaseManager.getBio(u.getUserName()));
                         followingsProfile.add(followingProfile);
                     }
 
@@ -68,6 +72,10 @@ public class ProfileHandler implements HttpHandler {
                 } else {
                     exchange.sendResponseHeaders(404, 0);
                 }
+
+                OutputStream out = exchange.getResponseBody();
+                out.write(gson.toJson(userProfile).getBytes());
+                out.close();
             } else if (Objects.equals(segments[3], "avatar")) {
                 try {
                     userProfile.setAvatar(databaseManager.getAvatar(usernameToView));
@@ -75,10 +83,11 @@ public class ProfileHandler implements HttpHandler {
                     e.printStackTrace();
                 }
                 exchange.sendResponseHeaders(200, 0);
+                OutputStream out = exchange.getResponseBody();
+                out.write(gson.toJson(userProfile).getBytes());
+                out.close();
             }
-            OutputStream out = exchange.getResponseBody();
-            out.write(gson.toJson(userProfile).getBytes());
-            out.close();
+
 
             exchange.close();
         }
