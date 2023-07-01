@@ -33,8 +33,14 @@
                   <Font size="16.0" />
                </font>
             </Button>
+            <Button fx:id="addPollButton" mnemonicParsing="false" onAction="#addPollAction" text="Add Poll">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Button>
          </children>
       </HBox>
       <ImageView fx:id="imageView" fitHeight="280.0" fitWidth="520.0" layoutX="200.0" layoutY="230.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" />
+      <VBox fx:id="pollBox" layoutX="40.0" layoutY="220.0" prefHeight="280.0" prefWidth="520.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" />
    </children>
 </AnchorPane>
