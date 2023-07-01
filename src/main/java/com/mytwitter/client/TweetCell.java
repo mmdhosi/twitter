@@ -259,7 +259,7 @@ public class TweetCell extends ListCell<Tweet> {
     public static void setProfile(ImageView profileImg, String username) {
         Requester requester = Requester.getRequester();
         String img = requester.getUserAvatar(username);
-        setProfileAvatar(profileImg ,ProfileImage.getAvatarImage(img), 30);
+        setProfileAvatar(profileImg ,ProfileImage.getAvatarImage(img), 15);
 
     }
 
