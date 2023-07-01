@@ -138,6 +138,14 @@ public class ProfileViewController implements Initializable {
             blockButton.setOnAction(this::clickOnBlockOrUnblock);
             setFollowBlock(profile.getFollowed(), profile.getBlocked());
         }
+
+        followersLink.setOnAction(event -> {
+            new UsersListController(profile.getFollowers());
+        });
+        followingLink.setOnAction(event -> {
+            new UsersListController(profile.getFollowings());
+        });
+
         setAvatar(profile.getAvatar());
         setHeader(profile.getHeader());
 

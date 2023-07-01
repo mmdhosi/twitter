@@ -259,14 +259,17 @@ public class TweetCell extends ListCell<Tweet> {
     public static void setProfile(ImageView profileImg, String username) {
         Requester requester = Requester.getRequester();
         String img = requester.getUserAvatar(username);
+        setProfileAvatar(profileImg ,ProfileImage.getAvatarImage(img), 30);
 
-        profileImg.setImage(ProfileImage.getAvatarImage(img));
+    }
 
-        float radius = 20;
-        profileImg.setFitHeight(radius);
-        profileImg.setFitWidth(radius);
-        Circle clip = new Circle(radius / 2, radius / 2, radius / 2);
-        profileImg.setClip(clip);
+    public static void setProfileAvatar(ImageView imageView, Image image, float radius){
+        imageView.setImage(image);
+
+        imageView.setFitHeight(radius*2);
+        imageView.setFitWidth(radius*2);
+        Circle clip = new Circle(radius, radius, radius);
+        imageView.setClip(clip);
     }
 
     public static VBox createContentBoxReply(HBox userInfoBox, Stage currentStage, Reply reply, boolean showSubjectTweet){

@@ -361,7 +361,6 @@ public class Requester {
                     .header("authorization",jwt)
                     .build();
             HttpResponse<String> GETResponse = httpClient.send(editRequest, HttpResponse.BodyHandlers.ofString());
-            // TODO: check response codes (duplicates)
             if(GETResponse.statusCode()==200) {
                 return OutputType.SUCCESS;
             }
@@ -372,7 +371,5 @@ public class Requester {
         }
         return OutputType.INVALID;
     }
-
-
 
 }
