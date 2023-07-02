@@ -82,6 +82,10 @@ public class Database {
             ResultSet result = statement.executeQuery();
             result.next();
 
+
+            if(!result.getString(2).equals(userName)){
+                return null;
+            }
             User user = new User(
                     result.getString(2),
                     result.getString(3),
@@ -664,7 +668,7 @@ public class Database {
         }
         return users;
     }
-    public Tweet getTweet(int tweetId){
+    public Tweet getTweet(int tweetId, String username){
         try {
             PreparedStatement statement = con.prepareStatement("SELECT * FROM twitter.tweets WHERE id=?");
             statement.setInt(1, tweetId);
@@ -677,13 +681,13 @@ public class Database {
                     result.getInt(4),
                     result.getInt(5),
                     result.getInt(6),
-                    getTweet(result.getInt(10)));
+                    getTweet(result.getInt(10), username));
             else if(result.getString(3).equals("R"))
                 resultTweet = new Retweet(getUserFromId(result.getInt(2)).getUserName(),
                         result.getInt(4),
                         result.getInt(5),
                         result.getInt(6),
-                        getTweet(result.getInt(8)));
+                        getTweet(result.getInt(8), username));
             else if(result.getString(3).equals("T")) {
                 RegularTweet tweet = new RegularTweet(getUserFromId(result.getInt(2)).getUserName(),
                         result.getString(7),
@@ -705,7 +709,7 @@ public class Database {
                 resultTweet = tweet;
             }
             else if(result.getString(3).equals("P")) {
-                Tweet repliedToTweet = getTweet(result.getInt(12));
+                Tweet repliedToTweet = getTweet(result.getInt(12), username);
                 Reply reply = new Reply(getUserFromId(result.getInt(2)).getUserName(),
                         result.getString(7),
                         result.getInt(4),
@@ -720,6 +724,17 @@ public class Database {
                 return null;
             resultTweet.setTweetId(result.getInt(1));
             resultTweet.setTimestamp(result.getTimestamp(11));
+
+
+            if(checkIfLiked(resultTweet.getTweetId(), username))
+                resultTweet.setLiked();
+            if(resultTweet instanceof RegularTweet regularTweet){
+                Poll poll = regularTweet.getPoll();
+                if(poll != null)
+                    poll.setAnsweredId(getPollAnswerByUser(poll.getId(), username));
+            }
+
+
             return resultTweet;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -735,9 +750,7 @@ public class Database {
             statement.setInt(1, FAVE_STAR_LIKE_COUNT);
             ResultSet result = statement.executeQuery();
             while(result.next()){
-                Tweet tweet=getTweet(result.getInt(1));
-                if(checkIfLiked(tweet.getTweetId(), userName))
-                    tweet.setLiked();
+                Tweet tweet=getTweet(result.getInt(1), userName);
                 timeline.add(tweet);
 
             }
@@ -763,16 +776,7 @@ public class Database {
                 ResultSet result = statement.executeQuery();
                 Tweet tweet;
                 while(result.next()){
-                    tweet = getTweet(result.getInt(1));
-
-                    if(checkIfLiked(tweet.getTweetId(), userName))
-                        tweet.setLiked();
-                    if(tweet instanceof RegularTweet regularTweet){
-                        Poll poll = regularTweet.getPoll();
-                        if(poll != null)
-                            poll.setAnsweredId(getPollAnswerByUser(poll.getId(), userName));
-                    }
-
+                    tweet = getTweet(result.getInt(1), userName);
                     timeline.add(tweet);
                 }
             } catch (SQLException e) {
@@ -784,7 +788,7 @@ public class Database {
         Collections.sort(tweets, new Comparator<Tweet>() {
             @Override
             public int compare(Tweet o1, Tweet o2) {
-                return o1.getTimestamp().compareTo(o2.getTimestamp());
+                return o2.getTimestamp().compareTo(o1.getTimestamp());
             }
         });
 
@@ -795,7 +799,7 @@ public class Database {
         return tweets;
     }
 
-    public List<Tweet> getTweetsForUser(String userName){
+    public List<Tweet> getTweetsForUser(String userName, String requesterUsername){
         ArrayList<User> followings=getFollowings(userName);
         HashSet<Tweet> tweetSet = new HashSet<>();
         try {
@@ -803,7 +807,7 @@ public class Database {
             statement.setInt(1, getUserId(userName));
             ResultSet result = statement.executeQuery();
             while(result.next()){
-                tweetSet.add(getTweet(result.getInt(1)));
+                tweetSet.add(getTweet(result.getInt(1), requesterUsername));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -813,13 +817,15 @@ public class Database {
         Collections.sort(tweets, new Comparator<Tweet>() {
             @Override
             public int compare(Tweet o1, Tweet o2) {
-                return o1.getTimestamp().compareTo(o2.getTimestamp());
+                return o2.getTimestamp().compareTo(o1.getTimestamp());
             }
         });
         return tweets;
     }
 
     public void extractHashtags(String content, int tweetId){
+        if(content == null || content.equals(""))
+            return;
         ArrayList<String> hashtags = new ArrayList<>();
         PreparedStatement statement;
         ResultSet result;
@@ -855,7 +861,8 @@ public class Database {
             }
         }
     }
-    public ArrayList<Tweet> findTweetsByHashtags(String hashtag){
+
+    public ArrayList<Tweet> findTweetsByHashtags(String hashtag, String username){
         if (!hashtag.contains("#") ) {
             hashtag="#"+hashtag;
         }
@@ -871,7 +878,7 @@ public class Database {
             statement.setInt(1, result.getInt(1));
             result = statement.executeQuery();
             while (result.next()){
-                tweets.add(getTweet(result.getInt(1)));
+                tweets.add(getTweet(result.getInt(1), username));
             }
 
         } catch (SQLException e) {
@@ -1037,7 +1044,7 @@ public class Database {
 
     }
 
-    public ArrayList<Retweet> getRetweets(int tweetId){
+    public ArrayList<Retweet> getRetweets(int tweetId, String username){
         ArrayList<Retweet> retweets = new ArrayList<>();
 
         try {
@@ -1050,7 +1057,7 @@ public class Database {
             ResultSet result = statement.executeQuery();
 
             while (result.next()) {
-                Retweet retweet = (Retweet) getTweet(result.getInt(1));
+                Retweet retweet = (Retweet) getTweet(result.getInt(1), username);
                 retweet.setTweetId(result.getInt(1));
                 retweets.add(retweet);
             }
@@ -1082,12 +1089,8 @@ public class Database {
             while (result.next()) {
                 // get all replies to this tweet
                 int reply_id = result.getInt(1);
-                Reply reply = (Reply) getTweet(reply_id);
+                Reply reply = (Reply) getTweet(reply_id, usernameToShow);
                 reply.addRepliedToUsername(tweetUsername);
-                // check if it's liked by this username
-                if(checkIfLiked(reply_id, usernameToShow))
-                    reply.setLiked();
-
                 replies.add(reply);
             }
         } catch (SQLException e){
@@ -1095,7 +1098,7 @@ public class Database {
         }
 
         // get all replies to this tweet's retweets
-        for (Retweet retweet:getRetweets(tweetToShowId)){
+        for (Retweet retweet:getRetweets(tweetToShowId, usernameToShow)){
             for (Reply reply : getReplies(usernameToShow, retweet.getTweetId())) {
                 reply.addRepliedToUsername(retweet.getUserName());
                 replies.add(reply);

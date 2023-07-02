@@ -18,6 +18,11 @@
       <ImageView fx:id="avatarImageView" fitHeight="100.0" fitWidth="100.0" layoutX="97.0" layoutY="141.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="150.0" />
       <HBox fx:id="actionBox" spacing="20.0" AnchorPane.leftAnchor="530.0" AnchorPane.topAnchor="220.0">
          <children>
+            <Button fx:id="messageButton" mnemonicParsing="false" text="Message">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
             <Button fx:id="blockButton" mnemonicParsing="false" text="Block">
                <font>
                   <Font size="14.0" />

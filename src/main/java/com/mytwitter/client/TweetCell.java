@@ -43,7 +43,11 @@ public class TweetCell extends ListCell<Tweet> {
     protected void updateItem(Tweet tweet, boolean empty) {
         super.updateItem(tweet, empty);
         if (!empty && tweet != null) {
-            setGraphic(createTweet(currentStage, tweet, true, true));
+
+            VBox tweetBox = createTweet(currentStage, tweet, true, true);
+            if(tweetBox == null)
+                return;
+            setGraphic(tweetBox);
             getStyleClass().add("fx-cell-size: 50px;");
 //                            CardController card = new CardController();
 //                            card.updateDetails(item.getName(), item.getContent());
@@ -142,7 +146,10 @@ public class TweetCell extends ListCell<Tweet> {
 
         timeStamp.setText(calculateTweetDate(tweet.getTimestamp()));
 
-        setProfile(profileImg, tweet.getUserName());
+        boolean res = setProfile(profileImg, tweet.getUserName());
+        if(!res)
+            return null;
+
         setUsername(usernameLabel, tweet, currentStage);
 
 
@@ -199,8 +206,9 @@ public class TweetCell extends ListCell<Tweet> {
             if (base64Img != null){
                 Image tweetImage = new Image(ImageBase64.convertToStream(base64Img));
                 ImageView tweetImageView = new ImageView();
+                tweetImageView.setPreserveRatio(true);
                 tweetImageView.setImage(tweetImage);
-                tweetImageView.setFitWidth(100);
+                tweetImageView.setFitWidth(200);
                 tweetImageView.setFitHeight(80);
                 contentBox.getChildren().add(tweetImageView);
             }
@@ -266,11 +274,13 @@ public class TweetCell extends ListCell<Tweet> {
         });
     }
 
-    public static void setProfile(ImageView profileImg, String username) {
+    public static boolean setProfile(ImageView profileImg, String username) {
         Requester requester = Requester.getRequester();
-        String img = requester.getUserAvatar(username);
-        setProfileAvatar(profileImg ,ProfileImage.getAvatarImage(img), 15);
-
+        UserProfile profile = requester.getProfile(username);
+        if(profile == null)
+            return false;
+        setProfileAvatar(profileImg ,ProfileImage.getAvatarImage(profile.getAvatar()), 15);
+        return true;
     }
 
     public static void setProfileAvatar(ImageView imageView, Image image, float radius){

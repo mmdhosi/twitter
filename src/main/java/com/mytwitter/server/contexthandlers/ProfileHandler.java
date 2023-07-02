@@ -30,6 +30,12 @@ public class ProfileHandler implements HttpHandler {
             String[] segments = requestUri.split("/");
             String usernameToView = segments[2];
 
+            if(databaseManager.checkBlocked(usernameToRequest, usernameToView)){
+                exchange.sendResponseHeaders(403, 0);
+                exchange.close();
+                return;
+            }
+
             UserProfile userProfile = new UserProfile();
             if (segments.length == 3) {
                 User user = databaseManager.getUser(usernameToView);
@@ -59,7 +65,7 @@ public class ProfileHandler implements HttpHandler {
                     userProfile.setHeader(databaseManager.getHeader(usernameToView));
                     userProfile.setCountFollowers(followers.size());
                     userProfile.setCountFollowings(followings.size());
-                    userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(usernameToView));
+                    userProfile.setTweets((ArrayList<Tweet>) databaseManager.getTweetsForUser(usernameToView, usernameToRequest));
                     if (!usernameToView.equals(usernameToRequest)) {
                         userProfile.setBlocked(databaseManager.checkBlocked(usernameToView, usernameToRequest));
                         userProfile.setFollowed(databaseManager.checkFollowed(usernameToView, usernameToRequest));

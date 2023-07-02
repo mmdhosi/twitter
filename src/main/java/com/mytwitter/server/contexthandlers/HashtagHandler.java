@@ -21,7 +21,7 @@ public class HashtagHandler implements HttpHandler {
         String keyword = segments[2];
 
 
-        ArrayList<Tweet> foundTweets = databaseManager.findTweetsByHashtags(keyword);
+        ArrayList<Tweet> foundTweets = databaseManager.findTweetsByHashtags(keyword, (String) exchange.getAttribute("username"));
         if(foundTweets == null){
             exchange.sendResponseHeaders(404, 0);
         } else {

@@ -75,7 +75,7 @@ public class Server {
             server.createContext("/tweet", new TweetHandler()).setAuthenticator(auth);
             server.createContext("/search", new SearchHandler());
             server.createContext("/edit", new EditHandler()).setAuthenticator(auth);
-            server.createContext("/hashtag", new HashtagHandler());
+            server.createContext("/hashtag", new HashtagHandler()).setAuthenticator(auth);
             server.createContext("/direct", new DirectHandler()).setAuthenticator(auth);
             server.createContext("/poll", new PollHandler()).setAuthenticator(auth);
 

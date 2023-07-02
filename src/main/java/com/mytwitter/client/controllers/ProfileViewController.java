@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -74,6 +75,9 @@ public class ProfileViewController implements Initializable {
     private Button homeButton;
 
     @FXML
+    private Button messageButton;
+
+    @FXML
     private Label joindate;
 
     @FXML
@@ -92,6 +96,7 @@ public class ProfileViewController implements Initializable {
     private Requester requester = Requester.getRequester();
 
     private String username;
+    private AnchorPane root;
 
 
     private final String BLOCK = "Block";
@@ -108,7 +113,9 @@ public class ProfileViewController implements Initializable {
         try {
             profileLoader = new FXMLLoader(getClass().getResource("/fxml/profile-view.fxml"));
             profileLoader.setController(this);
-            profileScene = new Scene(profileLoader.load());
+
+            this.root = profileLoader.load();
+            profileScene = new Scene(root);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -119,40 +126,61 @@ public class ProfileViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        UserProfile profile = requester.getProfile(username);
         homeButton.setOnAction(this::clickOnHomeButton);
 
-        UserProfile profile = requester.getProfile(username);
+        if(profile == null) {
+            root = (AnchorPane) homeButton.getParent();
+            for (int i = 0; i < 8; i++) {
+                root.getChildren().remove(0);
+            }
+            root.getChildren().add(homeButton);
+            Label blocked = new Label("You are blocked by this user");
+            root.getChildren().add(blocked);
+            AnchorPane.setTopAnchor(blocked, 300.);
+            AnchorPane.setLeftAnchor(blocked, 250.);
+            AnchorPane.setRightAnchor(blocked, 250.);
 
-        if(username.equals(Requester.getUsername())){
-            // showing profile for current user
-            actionBox.setVisible(false);
-            editProfileButton.setOnAction(event -> {
-                new EditViewController(currentStage, profile);
+            AnchorPane.setTopAnchor(homeButton, 350.);
+            AnchorPane.setLeftAnchor(homeButton, 300.);
+            AnchorPane.setRightAnchor(homeButton, 300.);
+        } else {
+
+
+            messageButton.setOnAction(event -> {
+                new MessagesViewController(currentStage, username);
             });
 
-        } else {
-            //showing profile for someone else
-            editProfileButton.setVisible(false);
-            followButton.setOnAction(this::clickOnFollowOrUnFollow);
-            blockButton.setOnAction(this::clickOnBlockOrUnblock);
-            setFollowBlock(profile.getFollowed(), profile.getBlocked());
+
+            if (username.equals(Requester.getUsername())) {
+                // showing profile for current user
+                actionBox.setVisible(false);
+                editProfileButton.setOnAction(event -> {
+                    new EditViewController(currentStage, profile);
+                });
+            } else {
+                //showing profile for someone else
+                editProfileButton.setVisible(false);
+                followButton.setOnAction(this::clickOnFollowOrUnFollow);
+                blockButton.setOnAction(this::clickOnBlockOrUnblock);
+                setFollowBlock(profile.getFollowed(), profile.getBlocked());
+            }
+
+            followersLink.setOnAction(event -> {
+                new UsersListController(profile.getFollowers());
+            });
+            followingLink.setOnAction(event -> {
+                new UsersListController(profile.getFollowings());
+            });
+
+            setAvatar(profile.getAvatar());
+            setHeader(profile.getHeader());
+
+            setUserInfo(profile.getUser());
+            setBioInfo(profile.getBio());
+            setFollowCounts(profile.getCountFollowers(), profile.getCountFollowings());
+            setTweets(profile.getTweets());
         }
-
-        followersLink.setOnAction(event -> {
-            new UsersListController(profile.getFollowers());
-        });
-        followingLink.setOnAction(event -> {
-            new UsersListController(profile.getFollowings());
-        });
-
-        setAvatar(profile.getAvatar());
-        setHeader(profile.getHeader());
-
-        setUserInfo(profile.getUser());
-        setBioInfo(profile.getBio());
-        setFollowCounts(profile.getCountFollowers(), profile.getCountFollowings());
-        setTweets(profile.getTweets());
-
     }
 
     public void setCurrentStage(Stage currentStage) {
@@ -166,10 +194,16 @@ public class ProfileViewController implements Initializable {
         else
             followButton.setText(FOLLOW);
 
-        if(isBlocked)
+        if(isBlocked) {
             blockButton.setText(UNBLOCK);
-        else
+            followButton.setDisable(true);
+            messageButton.setDisable(true);
+        }
+        else {
             blockButton.setText(BLOCK);
+            followButton.setDisable(false);
+            messageButton.setDisable(false);
+        }
 
     }
 
@@ -255,10 +289,12 @@ public class ProfileViewController implements Initializable {
             blockButton.setText(UNBLOCK);
             followButton.setText(FOLLOW);
             followButton.setDisable(true);
+            messageButton.setDisable(true);
         } else {
             requester.unblock(username);
             blockButton.setText(BLOCK);
             followButton.setDisable(false);
+            messageButton.setDisable(false);
         }
     }
 

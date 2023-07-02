@@ -153,6 +153,10 @@ public class Requester {
                     .build();
 
             HttpResponse<String> GETResponse = httpClient.send(GETRequest, HttpResponse.BodyHandlers.ofString());
+            if(GETResponse.statusCode() == 403){
+                return null;
+            }
+
             return ClientGson.getTimelineGson().fromJson(GETResponse.body(), UserProfile.class);
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
@@ -222,8 +226,10 @@ public class Requester {
                 return OutputType.SUCCESS;
 
         } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
             return OutputType.FAILURE;
         }
+        System.out.println("fail");
         return OutputType.FAILURE;
     }
 
@@ -328,6 +334,7 @@ public class Requester {
         try {
             HttpRequest searchRequest = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8000/hashtag/" + keyword))
+                    .header("authorization", jwt)
                     .GET()
                     .build();
             HttpResponse<String> response = httpClient.send(searchRequest, HttpResponse.BodyHandlers.ofString());
